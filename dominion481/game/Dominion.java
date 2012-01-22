@@ -1,30 +1,30 @@
-import java.util.*;
-import static java.lang.Math.*;
+package dominion481.game;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Dominion {
    List<Player> players;
-   List<KingdomCard> cardSet;
-   Board board;
+   List<Card> cardSet;
+   GameState board;
    
-   public Dominion(List<Player> players, List<KingdomCard> cardSet) {
+   public Dominion(List<Class<? extends Player>> players, List<Card> cardSet) {
       this.players = players;
       this.cardSet = cardSet;
    }
 
    public List<Player> play() {
-      board = new Board(cardSet);
+      board = new GameState(players, cardSet);
 
-      for (Player p : players)
-         p.setBoard(board);
-
-      while (true)
+      while (true) {
          for (Player p : players) {
             p.takeTurn();
-            if (board.isGameOver())
+            if (board.isGameOver()) {
                return getWinners();
+            }
          }
+      }
 
-      return null;
+      //return null;
    }
 
    public List<Player> getWinners() {
@@ -53,11 +53,9 @@ public class Dominion {
       return players;
    }
 
-   public Board getBoard() {
+   public GameState getBoard() {
       return board;
    }
 }
 
-class KingdomCard {
-	public static KingdomCard PROVIDENCE;
-}
+
