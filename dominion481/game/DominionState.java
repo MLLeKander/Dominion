@@ -2,14 +2,15 @@ package dominion481.game;
 import static java.lang.Math.floor;
 import static java.lang.Math.random;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GameState {
+public class DominionState {
    private final static int BOARD_SIZE = 10;
 
-   private final static HashMap<Card, Integer> DEFAULT_BOARD =
+   public final static HashMap<Card, Integer> DEFAULT_BOARD =
       new HashMap<Card, Integer>();
    static {
       DEFAULT_BOARD.put(Card.Province, 8);
@@ -17,7 +18,8 @@ public class GameState {
       DEFAULT_BOARD.put(Card.Duchy, 8);
    }
    
-   public HashMap<Card, Integer> boardMap = new HashMap<Card, Integer>();
+   private HashMap<Card, Integer> boardMap = new HashMap<Card, Integer>();
+   public Map<Card, Integer> unmodifiableBoardMap = Collections.unmodifiableMap(boardMap);
    
    List<Player> players;
    
@@ -33,7 +35,7 @@ public class GameState {
    Map<Player, List<Card>> discards;
    
    
-   public GameState(List<Player> players, List<Card> cardSet) {
+   public DominionState(List<Player> players, List<Card> cardSet) {
       assert cardSet.size() >= BOARD_SIZE;
       
       this.players = players;
@@ -54,5 +56,9 @@ public class GameState {
             emptyCount++;
 
       return boardMap.get(Card.Province) == 0 || emptyCount >= 3;
+   }
+   
+   public Map<Card, Integer> getBoardMap() {
+      return unmodifiableBoardMap;
    }
 }

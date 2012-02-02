@@ -1,30 +1,39 @@
 package dominion481.game;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Dominion {
+   List<Class<? extends Player>> playerClasses;
    List<Player> players;
    List<Card> cardSet;
-   GameState board;
-   
+   DominionState state;
+
    public Dominion(List<Class<? extends Player>> players, List<Card> cardSet) {
-      this.players = players;
+      this.playerClasses = players;
       this.cardSet = cardSet;
    }
 
-   public List<Player> play() {
-      board = new GameState(players, cardSet);
+   public List<Player> play() throws InvocationTargetException,
+         IllegalAccessException, InstantiationException, NoSuchMethodException {
+      players = new ArrayList<Player>();
+      state = new DominionState(players, cardSet);
+      
+      for (Class<? extends Player> cls : playerClasses) {
+         players.add(cls.getConstructor(state.getClass()).newInstance(state));
+      }
 
       while (true) {
          for (Player p : players) {
             p.takeTurn();
-            if (board.isGameOver()) {
+            if (state.isGameOver()) {
                return getWinners();
             }
          }
       }
 
-      //return null;
+      // return null;
    }
 
    public List<Player> getWinners() {
@@ -37,25 +46,16 @@ public class Dominion {
             maxPs = new ArrayList<Player>();
             max = points;
          }
-         
-         if (points >= max)
+
+         if (points >= max) {
             maxPs.add(p);
+         }
       }
-      
+
       return maxPs;
    }
 
    public static void main(String[] args) {
 
    }
-
-   public List<Player> getPlyers() {
-      return players;
-   }
-
-   public GameState getBoard() {
-      return board;
-   }
 }
-
-
