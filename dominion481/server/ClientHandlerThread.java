@@ -1,0 +1,51 @@
+package dominion481.server;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.Scanner;
+
+public class ClientHandlerThread extends Thread {
+   final Socket sock;
+   final DominionServer server;
+   String nick;
+
+   final PrintWriter out;
+   final Scanner in;
+
+   public ClientHandlerThread(Socket sock, DominionServer server)
+         throws IOException {
+      super();
+      this.sock = sock;
+      this.server = server;
+      this.in = new Scanner(new InputStreamReader(sock.getInputStream()));
+      this.out = new PrintWriter(sock.getOutputStream(), true);
+      nick = "Guest" + server.guestCount;
+   }
+
+   public void run() {
+      out.println("serverWelcome "+nick);
+
+      while (in.hasNextLine()) {
+         String line = in.nextLine();
+         System.out.println(nick + ": " + line);
+         respondTo(line);
+      }
+   }
+   
+   private String getAction(String line) {
+      line = line.trim();
+      if (line.length() == 0)
+         return "";
+      int ndx = line.indexOf(' ');
+      return (ndx < 0 ? line : line.substring(0, ndx)).toUpperCase();
+   }
+
+   private void respondTo(String line) {
+      String action = getAction(line);
+      
+      System.out.println("HERE");
+      ClientServerAction.valueOf(action).handle(line, out);
+   }
+}
