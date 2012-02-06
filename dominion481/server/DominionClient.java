@@ -18,7 +18,7 @@ public class DominionClient {
       new Thread(){
          public void run() {
             while (serverin.hasNextLine())
-               // What if the server responds in the middle of typing?
+               // TODO What if the server responds in the middle of typing?
                System.out.println("< "+serverin.nextLine());
             System.exit(-1);
          }
@@ -27,5 +27,6 @@ public class DominionClient {
       while (stdin.hasNextLine()) {
          serverout.println(stdin.nextLine());
       }
+      serverout.close();
    }
 }

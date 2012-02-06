@@ -1,19 +1,46 @@
 package dominion481.server;
 
-import java.io.PrintWriter;
-
-public enum ClientServerAction {
+public enum ClientServerAction implements Action {
    NICK("nick") {
-      public void handle(String line, PrintWriter out) {
-         
+      @Override
+      public void handle(String[] args, ClientHandlerThread thread) {
+         // TODO Add nick uniqueness check
+         if (args.length < 2)
+            thread.out.println("tooFewArguments");
+         else {
+            thread.out.println("serverRename " + thread.nick + " " + args[1]);
+            thread.nick = args[1];
+         }
       }
-   }, GETGAMES("getGames") {
-      public void handle(String line, PrintWriter out) {
+   },
+   GETGAMES("getGames") {
+      @Override
+      public void handle(String[] args, ClientHandlerThread thread) {
+         ;
+      }
+   },
+   GETLOBBIES("getLobbies") {
+      @Override
+      public void handle(String[] args, ClientHandlerThread thread) {
+         ;
+      }
+   },
+   STARTLOBBY("startLobby") {
+      @Override
+      public void handle(String[] args, ClientHandlerThread thread) {
+         ;
+      }
+   },
+   JOINLOBBY("joinLobby") {
+      @Override
+      public void handle(String[] args, ClientHandlerThread thread) {
          ;
       }
    };
-   
-   String name;
-   public abstract void handle(String line, PrintWriter out);
-   ClientServerAction(String n) { this.name = n; }
+
+   String[] name;
+
+   ClientServerAction(String... n) {
+      this.name = n;
+   }
 }

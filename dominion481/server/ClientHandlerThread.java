@@ -10,6 +10,9 @@ public class ClientHandlerThread extends Thread {
    final Socket sock;
    final DominionServer server;
    String nick;
+   
+   @SuppressWarnings("rawtypes")
+   Class actionsClass = ClientServerAction.class;
 
    final PrintWriter out;
    final Scanner in;
@@ -25,27 +28,25 @@ public class ClientHandlerThread extends Thread {
    }
 
    public void run() {
-      out.println("serverWelcome "+nick);
+      out.println("serverWelcome " + nick);
 
       while (in.hasNextLine()) {
          String line = in.nextLine();
          System.out.println(nick + ": " + line);
-         respondTo(line);
+         respondTo(line.trim().split("\\s+"));
       }
    }
-   
-   private String getAction(String line) {
-      line = line.trim();
-      if (line.length() == 0)
-         return "";
-      int ndx = line.indexOf(' ');
-      return (ndx < 0 ? line : line.substring(0, ndx)).toUpperCase();
-   }
 
-   private void respondTo(String line) {
-      String action = getAction(line);
-      
-      System.out.println("HERE");
-      ClientServerAction.valueOf(action).handle(line, out);
+   @SuppressWarnings("unchecked")
+   private void respondTo(String[] args) {
+      if (args.length == 0)
+         return;
+
+      try {
+         ((Action) Enum.valueOf(actionsClass, args[0].toUpperCase())).handle(
+               args, this);
+      } catch (IllegalArgumentException e) {
+         out.println("unknownAction " + args[0]);
+      }
    }
 }

@@ -29,6 +29,7 @@ listLobbies lobbyIds
 listActions actions
 listLevel
 unknownAction action
+tooFewArguments
 glhf
 
 $ java dominion481.server.DominionClient
