@@ -27,6 +27,7 @@ public class DominionServer {
    }
 
    public static void main(String[] args) throws IOException {
-      new DominionServer(1234).start();
+      int port = args.length > 0 ? Integer.parseInt(args[0]) : 1234;
+      new DominionServer(port).start();
    }
 }
