@@ -10,7 +10,8 @@ public class DominionClient {
    private final static int DEFAULT_PORT = 1234;
 
    public static void main(String[] args) throws IOException {
-      Scanner stdin = new Scanner(System.in);
+      final Scanner stdin = new Scanner(System.in), serverin;
+      PrintWriter serverout;
       Socket sock;
 
       if (args.length == 0)
@@ -20,8 +21,8 @@ public class DominionClient {
       else
          sock = new Socket(args[0], Integer.parseInt(args[1]));
 
-      PrintWriter serverout = new PrintWriter(sock.getOutputStream(), true);
-      final Scanner serverin = new Scanner(new InputStreamReader(
+      serverout = new PrintWriter(sock.getOutputStream(), true);
+      serverin = new Scanner(new InputStreamReader(
             sock.getInputStream()));
 
       new Thread() {
@@ -29,7 +30,7 @@ public class DominionClient {
             while (serverin.hasNextLine())
                // TODO What if the server responds in the middle of typing?
                System.out.println("< " + serverin.nextLine());
-            System.exit(-1);
+            System.exit(0);
          }
       }.start();
 

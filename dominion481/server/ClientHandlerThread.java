@@ -29,15 +29,24 @@ public class ClientHandlerThread extends Thread {
    }
 
    public void run() {
-      server.notifyAll(Mode.SERVER, "serverWelcome "+nick);
+      server.notifyAll(Mode.SERVER, "serverWelcome " + nick);
 
       while (in.hasNextLine()) {
          String line = in.nextLine();
          System.out.println(nick + ": " + line);
          respondTo(line.trim().split("\\s+"));
       }
-      
-      server.notifyAll(Mode.SERVER, "serverBye "+nick);
+
+      // TODO This client never sees this...
+      server.notifyAll(Mode.SERVER, "serverBye " + nick);
+
+      try {
+         sock.close();
+      } catch (IOException e) {
+         System.out.println("Could not close " + nick + "'s socket.");
+         System.out.println(e);
+      }
+
       server.threads.remove(this);
    }
 
@@ -47,8 +56,8 @@ public class ClientHandlerThread extends Thread {
          return;
 
       try {
-         ((Action) Enum.valueOf(actions.getDeclaringClass(), args[0].toUpperCase())).handle(
-               args, this);
+         ((Action) Enum.valueOf(actions.getDeclaringClass(), args[0]
+               .toUpperCase())).handle(args, this);
       } catch (IllegalArgumentException e) {
          try {
             ClientDefaultAction.valueOf(args[0].toUpperCase()).handle(args,
