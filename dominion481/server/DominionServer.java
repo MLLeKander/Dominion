@@ -11,6 +11,7 @@ public class DominionServer {
    final int port;
    final List<ClientHandlerThread> threads = new ArrayList<ClientHandlerThread>();
    final List<Lobby> lobbies = new ArrayList<Lobby>();
+   final List<Game> games = new ArrayList<Game>();
 
    public DominionServer(int port) {
       this.port = port;
