@@ -26,9 +26,11 @@ public class DominionServer {
       }
    }
    
-   void notifyAll(Mode mode, String message) {
+   public void notifyAll(Mode mode, String message) {
+      System.out.println("notifyAll "+mode+": "+message);
+      
       for (ClientHandlerThread t : threads)
-         if (t.mode == Mode.SERVER)
+         if (t.mode == mode)
             t.out.println(message);
    }
 

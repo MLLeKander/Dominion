@@ -4,11 +4,12 @@ public enum ClientServerAction implements Action {
    NICK("nick") {
       @Override
       public void handle(String[] args, ClientHandlerThread thread) {
-         // TODO Add nick uniqueness check
+         // TODO Nick uniqueness
          if (args.length < 2)
             thread.out.println("tooFewArguments");
          else {
-            thread.out.println("serverRename " + thread.nick + " " + args[1]);
+            thread.server.notifyAll(Mode.SERVER, "serverRename " + thread.nick
+                  + " " + args[1]);
             thread.nick = args[1];
          }
       }
@@ -45,11 +46,11 @@ public enum ClientServerAction implements Action {
    ClientServerAction(String... names) {
       this.names = names;
    }
-   
+
    public String[] getNames() {
       return names;
    }
-   
+
    public String toString() {
       return names[0];
    }
