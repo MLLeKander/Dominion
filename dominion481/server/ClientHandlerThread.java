@@ -37,7 +37,7 @@ public class ClientHandlerThread extends Thread {
          respondTo(line.trim().split("\\s+"));
       }
 
-      // TODO This client never sees this...
+      // TODO This client never sees its own serverbye.
       server.notifyAll(Mode.SERVER, "serverBye " + nick);
 
       try {
