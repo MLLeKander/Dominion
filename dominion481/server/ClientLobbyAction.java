@@ -3,14 +3,13 @@ package dominion481.server;
 public enum ClientLobbyAction implements Action {
    LEAVELOBBY("leaveLobby") {
       @Override
-      public void handle(String[] args, ClientHandlerThread thread) {
-         thread.actions = ClientServerAction.NICK;
-         thread.mode = Mode.SERVER;
+      public void handle(String[] args, ClientHandler client) {
+         client.leaveLobby();
       }
    },
    STARTGAME("startGame") {
       @Override
-      public void handle(String[] args, ClientHandlerThread thread) {
+      public void handle(String[] args, ClientHandler client) {
          ;
       }
    };
