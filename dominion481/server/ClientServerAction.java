@@ -28,23 +28,29 @@ public enum ClientServerAction implements Action {
    STARTLOBBY("startLobby") {
       @Override
       public void handle(String[] args, ClientHandlerThread thread) {
-         thread.actionsClass = ClientLobbyAction.class;
+         thread.actions = ClientLobbyAction.STARTGAME;
+         thread.mode = Mode.LOBBY;
       }
    },
    JOINLOBBY("joinLobby") {
       @Override
       public void handle(String[] args, ClientHandlerThread thread) {
-         thread.actionsClass = ClientLobbyAction.class;
+         thread.actions = ClientLobbyAction.STARTGAME;
+         thread.mode = Mode.LOBBY;
       }
    };
 
-   String name;
+   private String[] names;
 
-   ClientServerAction(String name) {
-      this.name = name;
+   ClientServerAction(String... names) {
+      this.names = names;
    }
    
-   public String getName() {
-      return name;
+   public String[] getNames() {
+      return names;
+   }
+   
+   public String toString() {
+      return names[0];
    }
 }

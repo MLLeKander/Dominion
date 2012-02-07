@@ -10,9 +10,10 @@ public class ClientHandlerThread extends Thread {
    final Socket sock;
    final DominionServer server;
    String nick;
-   
+   Mode mode = Mode.SERVER;
+
    @SuppressWarnings("rawtypes")
-   Class actionsClass = ClientServerAction.class;
+   Enum actions = ClientServerAction.NICK;
 
    final PrintWriter out;
    final Scanner in;
@@ -43,10 +44,15 @@ public class ClientHandlerThread extends Thread {
          return;
 
       try {
-         ((Action) Enum.valueOf(actionsClass, args[0].toUpperCase())).handle(
+         ((Action) Enum.valueOf(actions.getDeclaringClass(), args[0].toUpperCase())).handle(
                args, this);
       } catch (IllegalArgumentException e) {
-         out.println("unknownAction " + args[0]);
+         try {
+            ClientDefaultAction.valueOf(args[0].toUpperCase()).handle(args,
+                  this);
+         } catch (IllegalArgumentException ex) {
+            out.println("unknownAction " + args[0]);
+         }
       }
    }
 }

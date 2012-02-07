@@ -4,7 +4,8 @@ public enum ClientLobbyAction implements Action {
    LEAVELOBBY("leaveLobby") {
       @Override
       public void handle(String[] args, ClientHandlerThread thread) {
-         ;
+         thread.actions = ClientServerAction.NICK;
+         thread.mode = Mode.SERVER;
       }
    },
    STARTGAME("startGame") {
@@ -14,13 +15,17 @@ public enum ClientLobbyAction implements Action {
       }
    };
    
-   String name;
+   private String[] names;
    
-   private ClientLobbyAction(String name) {
-      this.name = name;
+   private ClientLobbyAction(String... names) {
+      this.names = names;
    }
    
-   public String getName() {
-      return name;
+   public String toString() {
+      return names[0];
+   }
+   
+   public String[] getNames() {
+      return names;
    }
 }
