@@ -9,11 +9,11 @@ public class DominionServer {
    long guestCount = 1;
 
    final int port;
-   final List<ClientHandlerThread> threads;
+   final List<ClientHandlerThread> threads = new ArrayList<ClientHandlerThread>();
+   final List<Lobby> lobbies = new ArrayList<Lobby>();
 
    public DominionServer(int port) {
       this.port = port;
-      threads = new ArrayList<ClientHandlerThread>();
    }
 
    public void start() throws IOException {

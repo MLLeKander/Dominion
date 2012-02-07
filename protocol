@@ -1,5 +1,5 @@
 Client Commands:
-ACTION NAME | ARGUMENT | LEVEL  | 
+ACTION NAME | ARGUMENT | MODE   | 
 ------------+----------+--------+ 
 nick        | name     | SERVER | 
 getGames    |          | SERVER | 
@@ -8,7 +8,7 @@ startLobby  | gameId   | SERVER |
 joinLobby   | lobbyId  | SERVER | 
 leaveLobby  |          | LOBBY  | 
 startGame   |          | LOBBY  | 
-getLevel    |          | ANY    | 
+getMode     |          | ANY    | 
 getActions  |          | ANY    | 
 getUsers    |          | ANY    | 
 ...         | ...      | GAME   | 
@@ -27,7 +27,7 @@ listGames gameIds
 listUsers nicks
 listLobbies lobbyIds
 listActions actions
-listLevel
+listMode
 unknownAction action
 tooFewArguments
 glhf
@@ -36,8 +36,8 @@ $ java dominion481.server.DominionClient
 < serverWelcome Guest1
 # nick OMGTallMonster
 < serverRename Guest1 OMGTallMonster
-# getLevel
-< listLevel SERVER
+# getMode
+< listMode SERVER
 # getGames
 < listGames dominion
 # getLobbies
@@ -47,7 +47,7 @@ $ java dominion481.server.DominionClient
 # getUsers
 < listUsers BigMoney
 # getActions
-< listActions nick getGames getLobbies startLobby joinLobby getLevel getActions getUsers
+< listActions nick getGames getLobbies startLobby joinLobby getMode getActions getUsers
 # bleargh
 < unknownAction bleargh
 # 
@@ -61,5 +61,5 @@ $ java dominion481.server.DominionClient
 < lobbyWelcome Dominion1 BigMoney
 # getActions
 < listActions startGame listUsers leaveLobby getActions
-# getLevel
-< listLevel LOBBY
+# getMode
+< listMode LOBBY
