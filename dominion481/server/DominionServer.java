@@ -25,6 +25,12 @@ public class DominionServer {
          cht.start();
       }
    }
+   
+   void notifyAll(Mode mode, String message) {
+      for (ClientHandlerThread t : threads)
+         if (t.mode == Mode.SERVER)
+            t.out.println(message);
+   }
 
    public static void main(String[] args) throws IOException {
       int port = args.length > 0 ? Integer.parseInt(args[0]) : 1234;

@@ -12,7 +12,7 @@ public class ClientHandlerThread extends Thread {
    String nick;
    Mode mode = Mode.SERVER;
 
-   @SuppressWarnings("rawtypes")
+   @SuppressWarnings("unchecked")
    Enum actions = ClientServerAction.NICK;
 
    final PrintWriter out;
@@ -29,13 +29,16 @@ public class ClientHandlerThread extends Thread {
    }
 
    public void run() {
-      out.println("serverWelcome " + nick);
+      server.notifyAll(Mode.SERVER, "serverWelcome "+nick);
 
       while (in.hasNextLine()) {
          String line = in.nextLine();
          System.out.println(nick + ": " + line);
          respondTo(line.trim().split("\\s+"));
       }
+      
+      server.notifyAll(Mode.SERVER, "serverBye "+nick);
+      server.threads.remove(this);
    }
 
    @SuppressWarnings("unchecked")
