@@ -186,7 +186,7 @@ public enum Card {
                player.gain(gain);
             }
             else {
-               throw new IllegalArgumentException("Cannot remodel " + trash + "to "+ gain);
+               throw new IllegalArgumentException("Cannot remodel " + trash + " to "+ gain);
             }
          }
       } 
@@ -316,7 +316,7 @@ public enum Card {
                player.hand.add(gain);
             }
             else {
-               throw new IllegalArgumentException("Cannot mine " + trash + "to "+ gain);
+               throw new IllegalArgumentException("Cannot mine " + trash + " to "+ gain);
             }
          }
       } 
