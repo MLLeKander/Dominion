@@ -16,7 +16,7 @@ public abstract class Player {
    int buys;
    int coin;
    
-   GameState parentGame;
+   DominionState parentGame;
    
    /**
     * Draws a card from the player's deck into hand
@@ -79,7 +79,8 @@ public abstract class Player {
 
       card.play(this, parentGame);
    }
-   
+
+   protected final long upi;
    public abstract void takeTurn();
    public abstract void notifyActions();
    public abstract int getVictoryPoints();
@@ -94,4 +95,9 @@ public abstract class Player {
    public abstract Card throneRoom();
    public abstract boolean libraryDiscard(Card card);
    public abstract Card[] mine();
+
+   public Player(DominionState state, long upi) {
+      this.parentGame = state;
+      this.upi = upi;
+   }
 }

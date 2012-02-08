@@ -1,0 +1,65 @@
+Client Commands:
+ACTION NAME | ARGUMENT | LEVEL  | 
+------------+----------+--------+ 
+nick        | name     | SERVER | 
+getGames    |          | SERVER | 
+getLobbies  | [gameId] | SERVER | 
+startLobby  | gameId   | SERVER | 
+joinLobby   | lobbyId  | SERVER | 
+leaveLobby  |          | LOBBY  | 
+startGame   |          | LOBBY  | 
+getLevel    |          | ANY    | 
+getActions  |          | ANY    | 
+getUsers    |          | ANY    | 
+...         | ...      | GAME   | 
+//addAI
+//getAIs
+//getHelp
+
+---
+Server Responses:
+serverWelcome nick
+lobbyWelcome nick
+lobbyBye nick
+serverBye nick
+serverRename oldNick newNick
+listGames gameIds
+listUsers nicks
+listLobbies lobbyIds
+listActions actions
+listLevel
+unknownAction action
+tooFewArguments
+glhf
+
+$ java dominion481.server.DominionClient
+< serverWelcome Guest1
+# nick OMGTallMonster
+< serverRename Guest1 OMGTallMonster
+# getLevel
+< listLevel SERVER
+# getGames
+< listGames dominion
+# getLobbies
+< listLobbies Chess1 Chess2 Arimaa1
+# getLobbies dominion
+< listLobbies
+# getUsers
+< listUsers BigMoney
+# getActions
+< listActions nick getGames getLobbies startLobby joinLobby getLevel getActions getUsers
+# bleargh
+< unknownAction bleargh
+# 
+# 
+# startLobby dominion
+< lobbyWelcome Dominion1 OMGTallMonster
+< lobbyWelcome Dominion1 BigMoney
+# getUsers
+< listUsers OMGTallMonster BigMoney
+< lobbyBye BigMoney
+< lobbyWelcome Dominion1 BigMoney
+# getActions
+< listActions startGame listUsers leaveLobby getActions
+# getLevel
+< listLevel LOBBY
