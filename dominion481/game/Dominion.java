@@ -8,7 +8,7 @@ public class Dominion {
    GameState board;
    
    public Dominion(List<Class<? extends Player>> players, List<Card> cardSet) {
-      this.players = players;
+      //this.players = players;
       this.cardSet = cardSet;
    }
 
