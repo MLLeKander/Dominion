@@ -112,6 +112,10 @@ public abstract class Player {
    }
    
    public final void buy(Card card) {
+      if (parentGame.currentPhase != Phase.BUY) {
+         throw new IllegalStateException("Purchased can only be done in the buy phase");
+      }
+      
       if (coin < card.getCost()) {
          throw new IllegalArgumentException("Not enough coin to purchase " + card);
       }
