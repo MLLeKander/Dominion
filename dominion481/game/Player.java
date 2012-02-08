@@ -79,8 +79,6 @@ public abstract class Player {
 
       card.play(this, parentGame);
    }
->>>>>>> Basic card implementation. No attack cards yet.
->>>>>>> Basic card implementation. No attack cards yet.
    
    public final void playAction(Card card) {
       if (actions < 1) {
@@ -117,8 +115,7 @@ public abstract class Player {
    public abstract boolean libraryDiscard(Card card);
    public abstract Card[] mine();
 
-   public Player(DominionState state, long upi) {
+   public Player(DominionState state) {
       this.parentGame = state;
-      this.upi = upi;
    }
 }
