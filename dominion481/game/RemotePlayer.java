@@ -2,6 +2,8 @@ package dominion481.game;
 
 import java.util.List;
 
+import dominion481.server.ClientHandler;
+
 public class RemotePlayer extends Player {
 
    @Override
@@ -57,7 +59,7 @@ public class RemotePlayer extends Player {
       // TODO Auto-generated method stub
       return null;
    }
-
+   
    @Override
    public Card throneRoom() {
       // TODO Auto-generated method stub
@@ -75,5 +77,8 @@ public class RemotePlayer extends Player {
       // TODO Auto-generated method stub
       return null;
    }
-
+   
+   public RemotePlayer(ClientHandler client) {
+      super(null);
+   }
 }

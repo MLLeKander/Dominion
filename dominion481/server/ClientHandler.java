@@ -10,7 +10,8 @@ public class ClientHandler extends Thread {
    final GameServer server;
    String nick;
    Mode mode = Mode.SERVER;
-   Lobby lobby = null;
+   Lobby lobby;
+   Game game;
 
    private final Socket sock;
    private final PrintWriter out;

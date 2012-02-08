@@ -17,7 +17,7 @@ public enum Mode {
    GAME {
       @Override
       public Class<? extends Enum> getEnum(ClientHandler client) {
-         return null;
+         return client.game.getActions(client);
       }
    };
 
