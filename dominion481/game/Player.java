@@ -1,10 +1,12 @@
 package dominion481.game;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import dominion481.game.Card.Type;
+import dominion481.game.DominionState.Phase;
 
 public abstract class Player {
    List<Card> hand;
@@ -62,6 +64,14 @@ public abstract class Player {
    }
    
    public final void playAction(Card card) {
+      if (parentGame.currentPhase != Phase.ACTION) {
+         throw new IllegalStateException("Actions can only be played in the action phase");
+      }
+      
+      if (parentGame.currentTurn != this) {
+         throw new IllegalStateException("Cards can only be played by the current player");
+      }
+      
       if (actions < 1) {
          throw new IllegalStateException("An action cannot be played when no actions remain");
       }
@@ -71,7 +81,7 @@ public abstract class Player {
       }
       
       if (!hand.remove(card)) {
-         throw new IllegalArgumentException("Card is not in hand!");
+         throw new IllegalArgumentException("Card " + card + " is not in hand!");
       }
       
       inPlay.add(card);
@@ -79,9 +89,62 @@ public abstract class Player {
 
       card.play(this, parentGame);
    }
+   
+   public final void playTreasure(Card card) {
+      if (parentGame.currentPhase != Phase.TREASURE) {
+         throw new IllegalStateException("Treasures can only be played in the treasure phase");
+      }
+      
+      if (parentGame.currentTurn != this) {
+         throw new IllegalStateException("Cards can only be played by the current player");
+      }
+      
+      if (card.type != Type.TREASURE) {
+         throw new IllegalArgumentException("Card played is not a treasure");
+      }
+      
+      if (!hand.remove(card)) {
+         throw new IllegalArgumentException("Card " + card + " is not in hand!");
+      }
+      
+      inPlay.add(card);
+      coin += card.getTreasureValue();
+   }
+   
+   public final void buy(Card card) {
+      if (coin < card.getCost()) {
+         throw new IllegalArgumentException("Not enough coin to purchase " + card);
+      }
+      
+      if (!gain(card)) {
+         throw new IllegalArgumentException(card + " is not available for purchase");
+      }
+      
+      coin -= card.getCost();
+   }
+   
+   final void endTurn() {
+      discard.addAll(hand);
+      discard.addAll(inPlay);
+      prepareTurn();
+   }
 
+   final void prepareTurn() {
+      hand = new ArrayList<Card>();
+      inPlay = new ArrayList<Card>();
+      actions = 1;
+      coin = 0;
+      buys = 1;
+      
+      for (int i = 0; i < 5; i++) {
+         draw();
+      }
+   }
+   
    protected final long upi;
    public abstract void takeTurn();
+   public abstract void playTreasure();
+   public abstract void buyCards();
    public abstract void notifyActions();
    public abstract int getVictoryPoints();
    

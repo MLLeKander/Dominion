@@ -25,6 +25,13 @@ public class DominionState {
    
    Player currentTurn;
    Player currentTarget;
+   Phase currentPhase;
+   
+   public enum Phase {
+      ACTION,
+      TREASURE,
+      BUY
+   }
    
    public DominionState(List<Player> players, List<Card> cardSet) {
       assert cardSet.size() >= BOARD_SIZE;

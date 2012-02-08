@@ -363,6 +363,7 @@ public enum Card {
 	public int getVp(Player player) { return vp; }
 	public int getCost() { return cost; }
 	public int getTreasureValue() { return treasureValue; }
+	public boolean isAttack() { return attack; }
 	
 	void play(Player player, DominionState state) {}
 	public void react() {}

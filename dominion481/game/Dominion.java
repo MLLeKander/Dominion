@@ -21,7 +21,7 @@ public class Dominion {
       state = new DominionState(players, cardSet);
       
       for (Class<? extends Player> cls : playerClasses) {
-         players.add(cls.getConstructor(state.getClass()).newInstance(state));
+         players.add(cls.getConstructor(state.getClass(), Long.class).newInstance(state, 0));
       }
 
       while (true) {
