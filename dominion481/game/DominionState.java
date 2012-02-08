@@ -5,7 +5,6 @@ import static java.lang.Math.random;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DominionState {
    private final static int BOARD_SIZE = 10;
@@ -24,16 +23,7 @@ public class DominionState {
    List<Player> players;
    
    Player currentTurn;
-   int actions;
-   int buys;
-   int coin;
-   
    Player currentTarget;
-   List<Card> inPlay;
-   Map<Player, List<Card>> hands;
-   Map<Player, List<Card>> decks;
-   Map<Player, List<Card>> discards;
-   
    
    public DominionState(List<Player> players, List<Card> cardSet) {
       assert cardSet.size() >= BOARD_SIZE;
