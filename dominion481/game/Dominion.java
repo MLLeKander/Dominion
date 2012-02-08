@@ -11,11 +11,8 @@ public class Dominion {
    DominionState state;
 
    public Dominion(List<Class<? extends Player>> players, List<Card> cardSet) {
-<<<<<<< HEAD
       this.playerClasses = players;
-=======
       //this.players = players;
->>>>>>> Basic card implementation. No attack cards yet.
       this.cardSet = cardSet;
    }
 

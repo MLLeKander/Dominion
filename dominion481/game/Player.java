@@ -1,9 +1,4 @@
 package dominion481.game;
-<<<<<<< HEAD
-abstract class Player {
-   protected final DominionState state;
-   protected final long upi;
-=======
 
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +16,7 @@ public abstract class Player {
    int buys;
    int coin;
    
-   GameState parentGame;
+   DominionState parentGame;
    
    /**
     * Draws a card from the player's deck into hand
@@ -84,17 +79,10 @@ public abstract class Player {
 
       card.play(this, parentGame);
    }
->>>>>>> Basic card implementation. No attack cards yet.
    
    public abstract void takeTurn();
    public abstract void notifyActions();
    public abstract int getVictoryPoints();
-<<<<<<< HEAD
-   public Player(DominionState state, long upi) {
-      this.state = state;
-      this.upi = upi;
-   }
-=======
    
    //Card Behaviors
    public abstract List<Card> cellar();
@@ -106,5 +94,8 @@ public abstract class Player {
    public abstract Card throneRoom();
    public abstract boolean libraryDiscard(Card card);
    public abstract Card[] mine();
->>>>>>> Basic card implementation. No attack cards yet.
+
+   public Player(DominionState state) {
+      this.parentGame = state;
+   }
 }
