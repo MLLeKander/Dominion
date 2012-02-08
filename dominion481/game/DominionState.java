@@ -5,7 +5,6 @@ import static java.lang.Math.random;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DominionState {
    private final static int BOARD_SIZE = 10;

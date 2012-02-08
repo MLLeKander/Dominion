@@ -79,6 +79,27 @@ public abstract class Player {
 
       card.play(this, parentGame);
    }
+>>>>>>> Basic card implementation. No attack cards yet.
+>>>>>>> Basic card implementation. No attack cards yet.
+   
+   public final void playAction(Card card) {
+      if (actions < 1) {
+         throw new IllegalStateException("An action cannot be played when no actions remain");
+      }
+      
+      if (card.type != Type.ACTION) {
+         throw new IllegalArgumentException("Card played is not an action");
+      }
+      
+      if (!hand.remove(card)) {
+         throw new IllegalArgumentException("Card is not in hand!");
+      }
+      
+      inPlay.add(card);
+      actions -= 1;
+
+      card.play(this, parentGame);
+   }
 
    protected final long upi;
    public abstract void takeTurn();
