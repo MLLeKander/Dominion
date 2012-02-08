@@ -129,6 +129,10 @@ public abstract class Player {
       prepareTurn();
    }
 
+   /* 
+    * Should be called before the first turn of the game, and subequently
+    * called automatically by endTurn
+    */
    final void prepareTurn() {
       hand = new ArrayList<Card>();
       inPlay = new ArrayList<Card>();
@@ -141,9 +145,9 @@ public abstract class Player {
       }
    }
    
-   public abstract void takeTurn();
-   public abstract void playTreasure();
-   public abstract void buyCards();
+   public abstract void actionPhase();
+   public abstract void purchasePhase();
+   public abstract void buyPhase();
    public abstract void notifyActions();
    public abstract int getVictoryPoints();
    
