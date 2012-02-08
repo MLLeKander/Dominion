@@ -26,7 +26,7 @@ public class Dominion {
 
       while (true) {
          for (Player p : players) {
-            p.takeTurn();
+            p.actionPhase();
             if (state.isGameOver()) {
                return getWinners();
             }
