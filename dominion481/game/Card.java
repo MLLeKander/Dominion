@@ -23,7 +23,7 @@ public enum Card {
 	 * Discard any number of cards. +1 Card per card discarded.
 	 */
    Cellar(2) {
-      void play(Player player, DominionState state) {
+      void play(DominionPlayer player, Dominion state) {
          List<Card> discards = player.cellar();
          for (Card discard : discards) {
             player.discard(discard);
@@ -39,7 +39,7 @@ public enum Card {
 	 * Trash up to 4 cards from hand.
 	 */
 	Chapel(2) {
-	   void play(Player player, DominionState state) {
+	   void play(DominionPlayer player, Dominion state) {
 	      List<Card> trashes = player.chapel();
 	      for (Card trash : trashes) {
 	         if (!player.hand.remove(trash)) {
@@ -54,7 +54,7 @@ public enum Card {
     * Reacts to protect against attacks
     */
    Moat(2) {
-      void play(Player player, DominionState state) {
+      void play(DominionPlayer player, Dominion state) {
          player.draw();
          player.draw();
       }
@@ -65,7 +65,7 @@ public enum Card {
     * You may put your deck into your discard
     */
    Chancellor(3) {
-      void play(Player player, DominionState state) {
+      void play(DominionPlayer player, Dominion state) {
          player.coin += 2;
          
          if (player.chancellor()) {
@@ -80,7 +80,7 @@ public enum Card {
     * +2 Actions
     */
    Village(3) {
-      void play(Player player, DominionState state) {
+      void play(DominionPlayer player, Dominion state) {
          player.actions += 2;
          player.draw();
       }
@@ -91,7 +91,7 @@ public enum Card {
     * +1 Buy
     */
    Woodcutter(3) {
-      void play(Player player, DominionState state) {
+      void play(DominionPlayer player, Dominion state) {
          player.coin += 2;
          player.buys += 1;
       }
@@ -101,7 +101,7 @@ public enum Card {
     * Gain any card costing up to 4
     */
    Workshop(3) {
-      void play(Player player, DominionState state) {
+      void play(DominionPlayer player, Dominion state) {
          Card gain = player.workshop();
          if (gain != null) {
             if (gain.cost <= 4) {
@@ -126,7 +126,7 @@ public enum Card {
     * Trash this. Gain a card costing up to 5
     */
    Feast(4) {
-      public void play(Player player, DominionState state) {
+      public void play(DominionPlayer player, Dominion state) {
          player.inPlay.remove(this);
          
          Card gain = player.feast();
@@ -145,7 +145,7 @@ public enum Card {
     * VP Value is deck size / 10, rounded down
     */
    Gardens(Type.VICTORY, 4, 0, 0) {
-      public int getVp(Player player) {
+      public int getVp(DominionPlayer player) {
          return (player.deck.size() + player.discard.size()) / 10;
       }
    },
@@ -157,7 +157,7 @@ public enum Card {
     * Trash a copper from your hand. If you do, +(3)
     */
    Moneylender(4) {
-      public void play(Player player, DominionState state) {
+      public void play(DominionPlayer player, Dominion state) {
          if (player.hand.remove(Card.Copper)) {
             player.coin += 3;
          }
@@ -168,7 +168,7 @@ public enum Card {
     * Trash a card from your hand. Gain a card costing up to 2 more
     */
    Remodel(4) {
-      public void play(Player player, DominionState state) {
+      public void play(DominionPlayer player, Dominion state) {
          if (player.hand.size() == 0) {
             return;
          }
@@ -196,7 +196,7 @@ public enum Card {
     * +3 Cards
     */
    Smithy(4) {
-      public void play(Player player, DominionState state) {
+      public void play(DominionPlayer player, Dominion state) {
          player.draw();
          player.draw();
          player.draw();
@@ -209,7 +209,7 @@ public enum Card {
       /* TODO */
    },
    ThroneRoom(4) {
-      public void play(Player player, DominionState state) {
+      public void play(DominionPlayer player, Dominion state) {
          Card card = player.throneRoom();
          
          if (card != null) {
@@ -229,7 +229,7 @@ public enum Card {
     * +(2)
     */
    Festival(5) {
-      public void play(Player player, DominionState state) {
+      public void play(DominionPlayer player, Dominion state) {
          player.actions += 2;
          player.buys += 1;
          player.coin += 2;
@@ -242,7 +242,7 @@ public enum Card {
     * +(2)
     */
    Laboratory(5) {
-      public void play(Player player, DominionState state) {
+      public void play(DominionPlayer player, Dominion state) {
          player.actions += 1;
          player.draw();
          player.draw();
@@ -254,7 +254,7 @@ public enum Card {
     * You may set aside and later discard any actions drawn in this manner
     */
    Library(5) {
-      public void play(Player player, DominionState state) {
+      public void play(DominionPlayer player, Dominion state) {
          List<Card> setAside = new ArrayList<Card>();
          
          while (player.hand.size() < 7) {
@@ -279,7 +279,7 @@ public enum Card {
     * +1 Card, +1 Action, +1 Buy, +(1)
     */
    Market(5) {
-      public void play(Player player, DominionState state) {
+      public void play(DominionPlayer player, Dominion state) {
          player.coin += 1;
          player.actions += 1;
          player.buys += 1;
@@ -291,7 +291,7 @@ public enum Card {
     * Trash a treasure from hand. Gain a treasure costing up to 3 more... in hand
     */
    Mine(5) {
-      public void play(Player player, DominionState state) {
+      public void play(DominionPlayer player, Dominion state) {
          if (player.hand.size() == 0) {
             return;
          }
@@ -330,7 +330,7 @@ public enum Card {
     * Add the treasures to your hand. Discard the revealed cards.
     */
    Adventurer(6) {
-      public void play(Player player, DominionState state) {
+      public void play(DominionPlayer player, Dominion state) {
          int found = 0;
          List<Card> setAside = new ArrayList<Card>();
          
@@ -360,12 +360,12 @@ public enum Card {
 	private final boolean attack;
 	public final Type type;
 	
-	public int getVp(Player player) { return vp; }
+	public int getVp(DominionPlayer player) { return vp; }
 	public int getCost() { return cost; }
 	public int getTreasureValue() { return treasureValue; }
 	public boolean isAttack() { return attack; }
 	
-	void play(Player player, DominionState state) {}
+	void play(DominionPlayer player, Dominion state) {}
 	public void react() {}
 	
 	private Card(int cost) {

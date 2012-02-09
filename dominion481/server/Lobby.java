@@ -30,9 +30,21 @@ public class Lobby {
    }
 
    public void notifyAll(String message) {
-      System.out.println("notifyAllLobby " + toString() + ": " + message);
+      GameServer.log("notifyAllLobby " + toString(), message);
 
       for (ClientHandler client : occupants)
          client.write(message);
+   }
+   
+   public void startGame() {
+      notifyAll("glhf");
+      Game g = game.createGame(occupants);
+      
+      for (ClientHandler client : occupants)
+         client.mode = Mode.GAME;
+      
+      for (RemotePlayer p : g.getRemotePlayers())
+         p.getClient().player = p;
+      g.start();
    }
 }

@@ -6,19 +6,21 @@ import java.util.List;
 import java.util.Map;
 
 import dominion481.game.Card.Type;
-import dominion481.game.DominionState.Phase;
+import dominion481.game.Dominion.Phase;
 
-public abstract class Player {
-   List<Card> hand;
-   LinkedList<Card> deck;
-   List<Card> discard;
-   List<Card> inPlay;
+public abstract class DominionPlayer {
+   List<Card> hand = new ArrayList<Card>();
+   LinkedList<Card> deck = new LinkedList<Card>();
+   List<Card> discard = new ArrayList<Card>();
+   List<Card> inPlay = new ArrayList<Card>();
+   
+   String nick;
    
    int actions;
    int buys;
    int coin;
    
-   DominionState parentGame;
+   Dominion parentGame;
    
    /**
     * Draws a card from the player's deck into hand
@@ -26,7 +28,10 @@ public abstract class Player {
     */
    final Card draw() {
       if (deck.isEmpty()) {
-         /* TODO Shuffle deck */
+         while (discard.size() > 0) {
+            int ndx = (int)Math.floor(Math.random() * discard.size());
+            deck.add(discard.remove(ndx));
+         }
       }
       
       //It's possible, though rare, to have empty deck and discard
@@ -109,6 +114,7 @@ public abstract class Player {
       
       inPlay.add(card);
       coin += card.getTreasureValue();
+      parentGame.notifyAll(nick + " redeemed " + card);
    }
    
    public final void buy(Card card) {
@@ -125,21 +131,25 @@ public abstract class Player {
       }
       
       coin -= card.getCost();
+      buys--;
+      parentGame.notifyAll(nick + " purchased " + card);
    }
    
    final void endTurn() {
       discard.addAll(hand);
       discard.addAll(inPlay);
+      hand.clear();
+      inPlay.clear();
       prepareTurn();
    }
 
    /* 
-    * Should be called before the first turn of the game, and subequently
+    * Should be called before the first turn of the game, and subsequently
     * called automatically by endTurn
     */
    final void prepareTurn() {
-      hand = new ArrayList<Card>();
-      inPlay = new ArrayList<Card>();
+      //hand = new ArrayList<Card>();
+      //inPlay = new ArrayList<Card>();
       actions = 1;
       coin = 0;
       buys = 1;
@@ -149,11 +159,26 @@ public abstract class Player {
       }
    }
    
+   final int getVictoryPoints() { 
+      int sum = 0;
+      for (Card c : discard)
+         sum += c.getVp(this);
+      for (Card c : deck)
+         sum += c.getVp(this);
+      for (Card c : hand)
+         sum += c.getVp(this);
+      
+      // TODO is this one needed?      
+      for (Card c : inPlay)
+         sum += c.getVp(this);
+    
+      return sum;
+   }
+
    public abstract void actionPhase();
-   public abstract void purchasePhase();
+   public abstract void treasurePhase();
    public abstract void buyPhase();
    public abstract void notifyActions();
-   public abstract int getVictoryPoints();
    
    //Card Behaviors
    public abstract List<Card> cellar();
@@ -166,7 +191,8 @@ public abstract class Player {
    public abstract boolean libraryDiscard(Card card);
    public abstract Card[] mine();
 
-   public Player(DominionState state) {
+   public DominionPlayer(Dominion state, String nick) {
       this.parentGame = state;
+      this.nick = nick;
    }
 }

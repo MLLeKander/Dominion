@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.List;
 import java.util.Scanner;
 
 public class ClientHandler extends Thread {
@@ -11,7 +12,8 @@ public class ClientHandler extends Thread {
    String nick;
    Mode mode = Mode.SERVER;
    Lobby lobby;
-   Game game;
+   public Game game;
+   RemotePlayer player;
 
    private final Socket sock;
    private final PrintWriter out;
@@ -31,7 +33,7 @@ public class ClientHandler extends Thread {
 
       while (in.hasNextLine()) {
          String line = in.nextLine();
-         System.out.println(nick + ": " + line);
+         GameServer.log(nick, line);
          respondTo(line.trim().split("\\s+"));
       }
 
@@ -52,26 +54,33 @@ public class ClientHandler extends Thread {
       return nick;
    }
 
-   @SuppressWarnings("unchecked")
    private void respondTo(String[] args) {
       if (args.length == 0)
          return;
 
-      try {
-         ((Action) Enum.valueOf(mode.getEnum(this), args[0].toUpperCase()))
-               .handle(args, this);
-      } catch (IllegalArgumentException e) {
-         try {
-            ClientDefaultAction.valueOf(args[0].toUpperCase()).handle(args,
-                  this);
-         } catch (IllegalArgumentException ex) {
-            out.println("unknownAction " + args[0]);
-         }
+      Action action = findAction(args[0], mode.getActions(this));
+      if (action == null) {
+         out.println("unknownAction " + args[0]);
+         return;
       }
+      
+      action.handle(args, this);
+   }
+   
+   public Action findAction(String name, List<Action> actions) {
+      for (Action a : actions)
+         for (String s : a.getNames())
+            if (s.equalsIgnoreCase(name))
+               return a;
+      return null;
    }
 
    public void write(String s) {
       out.println(s);
+   }
+
+   public void write(String action, List<?> objs) {
+      out.println(GameServer.listToString(action, objs));
    }
 
    public void joinLobby(Lobby l) {
@@ -95,5 +104,17 @@ public class ClientHandler extends Thread {
    public void rename(String newNick) {
       server.notifyAll("serverRename " + nick + " " + newNick);
       this.nick = newNick;
+   }
+   
+   public RemotePlayer getPlayer() {
+      return player;
+   }
+   
+   public String getNick() {
+      return nick;
+   }
+   
+   public Game getGame() {
+      return game;
    }
 }

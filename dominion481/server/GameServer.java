@@ -33,7 +33,7 @@ public class GameServer {
    }
 
    public void notifyAll(String message) {
-      System.out.println("notifyAllServer: " + message);
+      log("notifyAllServer", message);
 
       for (ClientHandler t : clients)
          if (t.mode == Mode.SERVER)
@@ -89,7 +89,7 @@ public class GameServer {
       return null;
    }
 
-   public GameFactory findFactory(String name) {
+   public GameFactory getFactory(String name) {
       GameFactory factory = null;
       for (GameFactory gf : availableGames)
          if (gf.getName().equalsIgnoreCase(name)) {
@@ -97,5 +97,9 @@ public class GameServer {
             break;
          }
       return factory;
+   }
+   
+   public static void log(String to, String message) {
+      System.out.println(to + ": " + message);
    }
 }
