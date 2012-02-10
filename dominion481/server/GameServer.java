@@ -83,7 +83,7 @@ public class GameServer {
                return l;
       } catch (NumberFormatException e) {
          for (Lobby l : lobbies)
-            if (l.toString().equals(name))
+            if (l.toString().equalsIgnoreCase(name))
                return l;
       }
       return null;

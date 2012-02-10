@@ -38,26 +38,6 @@ public class DominionAction {
       };
    }, emptyAction);
 
-   static final List<Action> buyPhaseActions = Arrays.asList(new Action(
-         "buyCard", "buy") {
-      @Override
-      public void handle(String[] args, ClientHandler client) {
-         DominionPlayer p = (DominionPlayer) client.getPlayer();
-         if (args.length < 2) {
-            p.buys = 0;
-         } else {
-            try {
-               p.buy(Enum.valueOf(Card.class, args[1]));
-               synchronized (client) {
-                  client.notify();
-               }
-            } catch (IllegalArgumentException e) {
-               client.write("invalidCard " + args[1]);
-            }
-         }
-      }
-   }, emptyAction);
-
    static final List<Action> treasurePhaseActions = Arrays.asList(new Action(
          "redeem") {
       @Override
@@ -94,6 +74,26 @@ public class DominionAction {
             }
          }
          return out;
+      }
+   }, emptyAction);
+   
+   static final List<Action> buyPhaseActions = Arrays.asList(new Action(
+         "buyCard", "buy") {
+      @Override
+      public void handle(String[] args, ClientHandler client) {
+         DominionPlayer p = (DominionPlayer) client.getPlayer();
+         if (args.length < 2) {
+            p.buys = 0;
+         } else {
+            try {
+               p.buy(Enum.valueOf(Card.class, args[1]));
+               synchronized (client) {
+                  client.notify();
+               }
+            } catch (IllegalArgumentException e) {
+               client.write("invalidCard " + args[1]);
+            }
+         }
       }
    }, emptyAction);
 }

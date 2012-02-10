@@ -1,6 +1,7 @@
 package dominion481.game;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ public abstract class DominionPlayer {
       
       Card toDraw = deck.poll();
       hand.add(toDraw);
+      Collections.sort(hand);
       return toDraw;
    }
    

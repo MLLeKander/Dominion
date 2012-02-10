@@ -5,16 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public enum Card {
-  //Base victory cards
-	Province(Type.VICTORY, 8, 6, 0),
-	Duchy(Type.VICTORY, 5, 1, 0),
-	Estate(Type.VICTORY, 2, 3, 0),
-	
-	//Base treasure cards
-	Gold(Type.TREASURE, 6, 0, 3),
-	Silver(Type.TREASURE, 3, 0, 2),
-	Copper(Type.TREASURE, 0, 0, 1),
-	
 	//Kingdom Cards
 	
 	/*
@@ -350,10 +340,23 @@ public enum Card {
          
          player.discard.addAll(setAside);
       }
-   }
+   },
+   
+   //Base treasure cards
+   Gold(Type.TREASURE, 6, 0, 3),
+   Silver(Type.TREASURE, 3, 0, 2),
+   Copper(Type.TREASURE, 0, 0, 1),
+   
+  //Base victory cards
+   Province(Type.VICTORY, 8, 6, 0),
+   Duchy(Type.VICTORY, 5, 1, 0),
+   Estate(Type.VICTORY, 2, 3, 0)
 	;
 	public enum Type {
-		ACTION, VICTORY, TREASURE;
+		ACTION("\033[36m"), TREASURE("\033[32m"), VICTORY("\033[33m");
+		
+		public final String colorCode;
+		private Type(String color) { colorCode = color; }
 	}
 	
 	private final int cost, vp, treasureValue;
@@ -365,7 +368,7 @@ public enum Card {
 	public int getTreasureValue() { return treasureValue; }
 	public boolean isAttack() { return attack; }
 	
-	void play(DominionPlayer player, Dominion state) {}
+	void play(DominionPlayer player, Dominion game) {}
 	public void react() {}
 	
 	private Card(int cost) {
@@ -387,4 +390,12 @@ public enum Card {
 		this.type = type;
 		this.attack = false;
 	}
+   
+   public static List<Card> filter(List<Card> cards, Type target) {
+      List<Card> out = new ArrayList<Card>();
+      for (Card c : cards)
+         if (c.type == target)
+            out.add(c);
+      return out;
+   }
 }

@@ -1,8 +1,11 @@
 package dominion481.game;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import dominion481.game.Card.Type;
 import dominion481.server.Action;
 import dominion481.server.ClientHandler;
 import dominion481.server.RemotePlayer;
@@ -74,19 +77,24 @@ public class RemoteDominionPlayer extends DominionPlayer implements
 
    @Override
    public void actionPhase() {
-      client.write("hand", hand);
+      client.write("hand" + getCardColors(hand));
+      List<Card> actionCards = Card.filter(hand, Type.ACTION);
+
+      if (actionCards.size() == 0)
+         return;
+
+      List<Action> prev = actions;
+      client.write("actionPhase", actionCards);
+      actions = prev;
    }
 
    @Override
    public void treasurePhase() {
-      ArrayList<Card> treasures = new ArrayList<Card>();
-      for (Card c : hand)
-         if (c.type == Card.Type.TREASURE)
-            treasures.add(c);
+      List<Card> treasureCards = Card.filter(hand, Type.TREASURE);
 
       List<Action> prev = actions;
       actions = DominionAction.treasurePhaseActions;
-      client.write("treasurePhase", treasures);
+      client.write("treasurePhase " + getCardColors(treasureCards));
       synchronized (client) {
          try {
             client.wait();
@@ -102,13 +110,20 @@ public class RemoteDominionPlayer extends DominionPlayer implements
       List<Card> availableCards = new ArrayList<Card>();
       for (Card c : parentGame.boardMap.keySet())
          if (c.getCost() <= coin)
-            availableCards.add(c);
+            availableCards.add(c);      
 
       List<Action> prev = actions;
       actions = DominionAction.buyPhaseActions;
 
+      Collections.sort(availableCards, new Comparator<Card>() {
+         @Override
+         public int compare(Card a, Card b) {
+            return b.getCost() - a.getCost();
+         }
+      });
+
       while (buys > 0) {
-         client.write("buyPhase", availableCards);
+         client.write("buyPhase " + getCardColors(availableCards));
          try {
             synchronized (client) {
                client.wait();
@@ -138,5 +153,16 @@ public class RemoteDominionPlayer extends DominionPlayer implements
    public RemoteDominionPlayer(Dominion game, ClientHandler client) {
       super(game, client.getNick());
       this.client = client;
+   }
+
+   private StringBuilder getCardColors(List<Card> cards) {
+      StringBuilder sb = new StringBuilder();
+      for (Card c : cards) {
+         sb.append(' ');
+         sb.append(c.type.colorCode);
+         sb.append(c);
+         sb.append("\033[0m");
+      }
+      return sb;
    }
 }
