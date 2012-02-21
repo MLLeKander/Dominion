@@ -189,18 +189,60 @@ public abstract class DominionPlayer {
    public abstract void buyPhase();
    
    //Card Behaviors
+   
+   /**
+    * @return The list of cards to be discarded and replaced
+    */
    public abstract List<Card> cellar();
+   
+   /**
+    * @return The list of cards to be trashed from hand
+    */
    public abstract List<Card> chapel();
+   
+   /**
+    * @return True if the deck should be put into the discard. False otherwise
+    */
    public abstract boolean chancellor();
+   
+   /**
+    * @return The type of card the player would like to gain
+    */
    public abstract Card workshop();
+   
+   /**
+    * @return The type card the player would like to gain
+    */
    public abstract Card feast();
+   
+   /**
+    * @return The card to trash and the card to gain in its place<br />
+    * return[0] - Card to trash<br />
+    * return[1] - Card to gain<br /> 
+    */
    public abstract Card[] remodel();
+   
+   /**
+    * @return The action card from hand to double-play
+    */
    public abstract Card throneRoom();
+   
+   /**
+    * This method is called each time an action card is drawn when using the library
+    * @param card The drawn action card
+    * @return True if the card should be discarded and replaced
+    */
    public abstract boolean libraryDiscard(Card card);
    public abstract Card bureaucrat();
    public abstract List<Card> militia();
    public abstract boolean spyDiscard(Card c, DominionPlayer p);
    public abstract boolean theifGain(Card toTrash);
+   
+   /**
+    * @return The treasure to trash and the treasure to gain in its place<br />
+    * return[0] - Treasure to trash<br />
+    * return[1] - Treasure to gain<br />
+    */
    public abstract Card[] mine();
 
    public DominionPlayer(Dominion state, String nick) {
