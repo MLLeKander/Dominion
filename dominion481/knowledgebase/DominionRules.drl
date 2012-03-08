@@ -1,0 +1,154 @@
+package dominion481.knowledgebase
+
+import dominion481.knowledgebase.DominionTest.*;
+import dominion481.knowledgebase.DominionTest.KBCard;
+import dominion481.knowledgebase.DominionTest.KBCardType;
+
+declare PairRecommendation
+	trigger : KBCard @Key
+	recommendation : KBCard @Key
+	initialValue : int @Key
+	triggerBalance : int @Key
+	recommendationBalance : int @Key
+end
+
+rule "Initial Pair Recommendations"
+when
+	p : PairRecommendation(t := trigger, r := recommendation)
+	tt : TableCard (t := card)
+	tr : TableCard (r := card)
+then
+	tr.recommendation += p.getInitialValue();
+end
+
+rule "Recommendation Purchase Update"
+when
+	dc : DeckCard(card := card)
+	p : PairRecommendation(card := trigger, rec := recommendation)
+	tt : TableCard (card := card)
+	tr : TableCard (rec := card)
+then
+	tt.recommendation += p.getTriggerBalance();
+	tr.recommendation += p.getRecommendationBalance();
+end
+
+rule "Always Recommend Province"
+when
+	t : TableCard(card == KBCard.PROVINCE)
+then
+	t.recommendation = Integer.MAX_VALUE;
+end
+
+rule "Duchy if nothing better"
+when
+	t : TableCard(card == KBCard.DUCHY)
+then
+	t.recommendation = 50;
+end
+
+rule "Strongly Recommend Gold"
+when
+	t : TableCard(card == KBCard.GOLD)
+then
+	t.recommendation = 200;
+end
+
+rule "Suggest Silver"
+when
+	t : TableCard(card == KBCard.SILVER)
+then
+	t.recommendation = 100;
+end
+
+rule "Don't buy Copper"
+when
+	t : TableCard(card == KBCard.COPPER)
+then
+	t.recommendation = -1;
+end
+
+rule "Suggest Cellar"
+when
+	t : TableCard(card == KBCard.CELLAR)
+then
+	t.recommendation = 100;
+end
+
+rule "Only once cellar, normally"
+when
+	d : DeckCard(card == KBCard.CELLAR)
+	t : TableCard(card == KBCard.CELLAR)
+then
+	t.recommendation -= 100;
+end
+
+rule "Gardens with +Buy"
+when
+	gardens : TableCard(card == KBCard.GARDENS)
+	buy : TableCard(card.buys > 0)
+then
+	insert (new PairRecommendation(gardens.getCard(), buy.getCard(), 50, 0, 10));
+	insert (new PairRecommendation(buy.getCard(), gardens.getCard(), 50, 0, 10));
+end
+
+rule "+Action and +Card"
+when
+	ta : TableCard(card.getActions() > 1)
+	tc : TableCard(card.getCards() > 1)
+then
+	insert (new PairRecommendation(ta.getCard(), tc.getCard(), 15, 0, 0));
+	insert (new PairRecommendation(tc.getCard(), ta.getCard(), 5, 0, 0));
+end
+
+rule "+Action and +Coin"
+when
+	ta : TableCard(card.getActions() > 1)
+	tc : TableCard(card.getCoin() > 1)
+then
+	insert (new PairRecommendation(ta.getCard(), tc.getCard(), 15, 0, 0));
+	insert (new PairRecommendation(tc.getCard(), ta.getCard(), 5, 0, 0));
+end
+
+
+//Balancing changes
+
+rule "Don't buy cellar with Gardens"
+when
+	d : DeckCard(card == KBCard.GARDENS)
+	t : TableCard(card == KBCard.CELLAR)
+then
+	t.recommendation -= 100;
+end
+
+rule "Reduce value on purchase to balance"
+when
+	d : DeckCard(card := card)
+	t : TableCard(card := card)
+then
+	t.recommendation -= 1;
+end
+
+rule "Gradually increase treasure importance"
+when
+	d : DeckCard(card.getType() != KBCardType.TREASURE)
+	t : TableCard(card.getType() == KBCardType.TREASURE)
+then
+	t.recommendation += 5;
+end
+
+rule "Game nearing end"
+when
+	t : TableCard(card.getType() == KBCardType.VICTORY)
+	and
+	(
+		exists(TableCard(card == KBCard.PROVINCE, available <= 2))
+		or
+		(
+			TableCard(c : card, available == 0)
+			and
+			TableCard(card != c, available == 0)
+		)
+	)
+then
+	t.recommendation += 1000;
+end

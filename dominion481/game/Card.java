@@ -376,19 +376,19 @@ public enum Card {
 	}
 	
 	private Card(int cost, boolean attack) {
-	   type = Type.ACTION;
-      this.cost = cost;
-      vp = 0;
-      treasureValue = 0;
-      this.attack = attack;
+	   this(Type.ACTION, cost, 0, 0, attack);
 	}
 	
 	private Card(Type type, int cost, int vp, int treasureValue) {
-		this.cost = cost;
-		this.vp = vp;
-		this.treasureValue = treasureValue;
-		this.type = type;
-		this.attack = false;
+		this(type, cost, vp, treasureValue, false);
+	}
+	
+	private Card(Type type, int cost, int vp, int treasureValue, boolean attack) {
+	   this.cost = cost;
+      this.vp = vp;
+      this.treasureValue = treasureValue;
+      this.type = type;
+      this.attack = attack;
 	}
    
    public static List<Card> filter(List<Card> cards, Type target) {
