@@ -1,5 +1,12 @@
 package dominion481.knowledgebase;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Random;
+
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
 import org.drools.builder.KnowledgeBuilder;
@@ -105,7 +112,7 @@ public class DominionTest {
       }
    }
    
-   public class TableCard {
+   public static class TableCard {
       private KBCard card;
       private int available;
       public int recommendation;
@@ -140,11 +147,26 @@ public class DominionTest {
       }
    }
    
-   public class DeckCard {
+   public static class DeckCard {
       private KBCard card;
 
       public DeckCard(KBCard card) {
-         super();
+         this.card = card;
+      }
+
+      public KBCard getCard() {
+         return card;
+      }
+
+      public void setCard(KBCard card) {
+         this.card = card;
+      }
+   }
+   
+   public static class EnemyCard {
+      private KBCard card;
+
+      public EnemyCard(KBCard card) {
          this.card = card;
       }
 
@@ -162,12 +184,45 @@ public class DominionTest {
       // load up the knowledge base
       KnowledgeBase kbase = readKnowledgeBase();
       StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
-//      KnowledgeRuntimeLogger logger = KnowledgeRuntimeLoggerFactory
-//          .newFileLogger(ksession, "test");
-      // go !
+
+      List<KBCard> cards = new ArrayList<KBCard>(Arrays.asList(KBCard.values()));
+      cards.remove(KBCard.PROVINCE);
+      cards.remove(KBCard.DUCHY);
+      cards.remove(KBCard.ESTATE);
+      cards.remove(KBCard.COPPER);
+      cards.remove(KBCard.SILVER);
+      cards.remove(KBCard.GOLD);
+      
+      List<TableCard> tableCards = new ArrayList<TableCard>();
+      tableCards.add(new TableCard(KBCard.PROVINCE, 12));
+      tableCards.add(new TableCard(KBCard.DUCHY, 12));
+      tableCards.add(new TableCard(KBCard.ESTATE, 12));
+      tableCards.add(new TableCard(KBCard.GOLD, Integer.MAX_VALUE));
+      tableCards.add(new TableCard(KBCard.COPPER, Integer.MAX_VALUE));
+      tableCards.add(new TableCard(KBCard.SILVER, Integer.MAX_VALUE));
+      
+      Random rand = new Random();
+      for (int i = 0; i < 10; i++) {
+         KBCard card = cards.remove(rand.nextInt(cards.size()));
+         tableCards.add(new TableCard(card, card.getType() == KBCardType.VICTORY ? 12 : 10));
+      }
+      
+      for (TableCard tc : tableCards) {
+         ksession.insert(tc);
+      }
       
       ksession.fireAllRules();
-//      logger.close();
+      
+      Collections.sort(tableCards, new Comparator<TableCard>() {
+         @Override
+         public int compare(TableCard arg0, TableCard arg1) {
+            return arg1.recommendation - arg0.recommendation;
+         }
+      });
+      
+      for (TableCard tc : tableCards) {
+         System.out.println(tc.getCard() + ": " + tc.getRecommendation());
+      }
     } catch (Throwable t) {
       t.printStackTrace();
     }
@@ -190,3 +245,4 @@ public class DominionTest {
   }
 
 }
+
