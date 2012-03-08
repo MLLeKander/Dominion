@@ -13,7 +13,8 @@ public enum Card {
 	 * Discard any number of cards. +1 Card per card discarded.
 	 */
    Cellar(2) {
-      void play(DominionPlayer player, Dominion state) {
+      void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          List<Card> discards = player.cellar();
          for (Card discard : discards) {
             player.discard(discard);
@@ -29,7 +30,8 @@ public enum Card {
 	 * Trash up to 4 cards from hand.
 	 */
 	Chapel(2) {
-	   void play(DominionPlayer player, Dominion state) {
+	   void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
 	      List<Card> trashes = player.chapel();
 	      for (Card trash : trashes) {
 	         if (!player.hand.remove(trash)) {
@@ -44,7 +46,8 @@ public enum Card {
     * Reacts to protect against attacks
     */
    Moat(2) {
-      void play(DominionPlayer player, Dominion state) {
+      void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          player.draw();
          player.draw();
       }
@@ -55,7 +58,8 @@ public enum Card {
     * You may put your deck into your discard
     */
    Chancellor(3) {
-      void play(DominionPlayer player, Dominion state) {
+      void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          player.coin += 2;
          
          if (player.chancellor()) {
@@ -70,7 +74,8 @@ public enum Card {
     * +2 Actions
     */
    Village(3) {
-      void play(DominionPlayer player, Dominion state) {
+      void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          player.actions += 2;
          player.draw();
       }
@@ -81,7 +86,8 @@ public enum Card {
     * +1 Buy
     */
    Woodcutter(3) {
-      void play(DominionPlayer player, Dominion state) {
+      void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          player.coin += 2;
          player.buys += 1;
       }
@@ -91,7 +97,8 @@ public enum Card {
     * Gain any card costing up to 4
     */
    Workshop(3) {
-      void play(DominionPlayer player, Dominion state) {
+      void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          Card gain = player.workshop();
          if (gain != null) {
             if (gain.cost <= 4) {
@@ -109,14 +116,41 @@ public enum Card {
     * All others must place a VP card from hand atop their deck (if possible)
     */
    Bureaucrat(4, true) {
-      //TODO
+      @Override
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
+         if (game.boardMap.get(Silver) > 0)
+            player.gain(Silver);
+         player.deck.add(0, Silver);
+         player.discard.remove(Silver);
+         
+         for (DominionPlayer p : game.players)
+            if (p != player) {
+               boolean hasVictoryCard = false;
+               for (Card c : p.hand)
+                  hasVictoryCard |= c.type == Type.TREASURE;
+               
+               if (hasVictoryCard) {
+                  Card toPutback = p.bureaucrat();
+                  if (!p.hand.remove(toPutback))
+                     throw new IllegalArgumentException("Cannot bureaucrat "+toPutback);
+                  p.deck.add(0, toPutback);
+                  toPutback.reveal(player, game);
+               }
+               else {
+                  for (Card c : p.hand)
+                     c.reveal(player, game);
+               }
+            }
+      }
    },
    /*
     * Feast
     * Trash this. Gain a card costing up to 5
     */
    Feast(4) {
-      public void play(DominionPlayer player, Dominion state) {
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          player.inPlay.remove(this);
          
          Card gain = player.feast();
@@ -139,15 +173,40 @@ public enum Card {
          return (player.deck.size() + player.discard.size()) / 10;
       }
    },
+   /*
+    * Militia
+    * +(2)
+    * Each other player discards down to 3 cards in their hand
+    */
    Militia(4, true) {
-      //TODO
+      @Override
+      void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
+         player.coin += 2;
+         
+         for (DominionPlayer p : game.players)
+            if (p != player) {
+               if (p.hand.size() <= 3)
+                  continue;
+               List<Card> toDiscard = p.militia();
+               if (p.hand.size() - toDiscard.size() > 3)
+                  throw new IllegalArgumentException("Must discard down to 3 cards");
+               for (Card c : toDiscard) {
+                  if (!p.hand.remove(c))
+                     throw new IllegalArgumentException(c+" not in hand");
+                  game.reveal(p, c);
+                  p.discard.add(c);
+               }
+            }
+      }
    },
    /*
     * Moneylender
     * Trash a copper from your hand. If you do, +(3)
     */
    Moneylender(4) {
-      public void play(DominionPlayer player, Dominion state) {
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          if (player.hand.remove(Card.Copper)) {
             player.coin += 3;
          }
@@ -158,7 +217,8 @@ public enum Card {
     * Trash a card from your hand. Gain a card costing up to 2 more
     */
    Remodel(4) {
-      public void play(DominionPlayer player, Dominion state) {
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          if (player.hand.size() == 0) {
             return;
          }
@@ -186,31 +246,95 @@ public enum Card {
     * +3 Cards
     */
    Smithy(4) {
-      public void play(DominionPlayer player, Dominion state) {
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          player.draw();
          player.draw();
          player.draw();
       }
    },
+   /*
+    * Spy
+    * +1 Card
+    * +1 Action
+    * Every player reveals the top card from their deck. You decide whether to put it back or to discard it.
+    */
    Spy(4, true) {
-      /* TODO */
+      @Override
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
+         player.draw();
+         player.actions++;
+         
+         for (DominionPlayer p : game.players) {
+            Card topCard = p.deck.remove();
+            
+            if (player.spyDiscard(topCard, p))
+               p.discard.add(topCard);
+            else
+               p.deck.add(0, topCard);
+         }
+      }
    },
+   /*
+    * Thief
+    * Each other player reveals the top 2 cards of their deck
+    * You may trash a treasure card of these two, and you choose if you want to gain this card
+    * The other revealed cards are discarded
+    */
    Theif(4, true) {
-      /* TODO */
+      @Override
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
+         for (DominionPlayer p : game.players)
+            if (p != player) {
+               Card toTrash = null, a = p.deck.remove(), b = p.deck.remove();
+               game.reveal(p, a);
+               game.reveal(p, b);
+               if (a.type == Type.TREASURE)
+                  toTrash = a;
+               if (b.type == Type.TREASURE)
+                  toTrash = toTrash == null ? b : a.getCost() > b.getCost() ? a : b;
+               if (toTrash != null) {
+                  game.trash(player, toTrash);
+                  if (player.theifGain(toTrash))
+                     player.gain(toTrash);
+               }
+            }
+      }
    },
-   ThroneRoom(4) {
-      public void play(DominionPlayer player, Dominion state) {
+   /*ThroneRoom(4) {
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          Card card = player.throneRoom();
          
          if (card != null) {
             player.actions += 1;
             player.playAction(card);
-            card.play(player, state);
+            card.play(player, game);
          }
       }
-   },
+   },*/
+   /*
+    * Council Room
+    * +4 Cards
+    * +1 Buys
+    * Every other player draws a card
+    */
    CouncilRoom(5) {
-      /* TODO */
+      @Override
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
+         player.draw();
+         player.draw();
+         player.draw();
+         player.draw();
+         player.buys++;
+         
+         for (DominionPlayer p : game.players)
+            if (p != player)
+               p.draw();
+      }
    },
    /*
     * Festival
@@ -219,7 +343,8 @@ public enum Card {
     * +(2)
     */
    Festival(5) {
-      public void play(DominionPlayer player, Dominion state) {
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          player.actions += 2;
          player.buys += 1;
          player.coin += 2;
@@ -232,7 +357,8 @@ public enum Card {
     * +(2)
     */
    Laboratory(5) {
-      public void play(DominionPlayer player, Dominion state) {
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          player.actions += 1;
          player.draw();
          player.draw();
@@ -244,7 +370,8 @@ public enum Card {
     * You may set aside and later discard any actions drawn in this manner
     */
    Library(5) {
-      public void play(DominionPlayer player, Dominion state) {
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          List<Card> setAside = new ArrayList<Card>();
          
          while (player.hand.size() < 7) {
@@ -269,7 +396,8 @@ public enum Card {
     * +1 Card, +1 Action, +1 Buy, +(1)
     */
    Market(5) {
-      public void play(DominionPlayer player, Dominion state) {
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          player.coin += 1;
          player.actions += 1;
          player.buys += 1;
@@ -281,7 +409,8 @@ public enum Card {
     * Trash a treasure from hand. Gain a treasure costing up to 3 more... in hand
     */
    Mine(5) {
-      public void play(DominionPlayer player, Dominion state) {
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          if (Card.filter(player.hand, Type.TREASURE).size() == 0) {
             return;
          }
@@ -312,7 +441,16 @@ public enum Card {
       } 
    },
    Witch(5, true) {
-      /* TODO */
+      @Override
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
+         player.draw();
+         player.draw();
+         
+         for (DominionPlayer p : game.players)
+            if (p != player && game.boardMap.get(Curse) > 0)
+               p.gain(Curse);
+      }
    },
    /*
     * Adventurer
@@ -320,7 +458,8 @@ public enum Card {
     * Add the treasures to your hand. Discard the revealed cards.
     */
    Adventurer(6) {
-      public void play(DominionPlayer player, Dominion state) {
+      public void play(DominionPlayer player, Dominion game) {
+         super.play(player, game);
          int found = 0;
          List<Card> setAside = new ArrayList<Card>();
          
@@ -350,7 +489,8 @@ public enum Card {
   //Base victory cards
    Province(Type.VICTORY, 8, 6, 0),
    Duchy(Type.VICTORY, 5, 1, 0),
-   Estate(Type.VICTORY, 2, 3, 0)
+   Estate(Type.VICTORY, 2, 3, 0),
+   Curse(Type.VICTORY, 0, -1, 0)
 	;
 	public enum Type {
 		ACTION("\033[36m"), TREASURE("\033[33m"), VICTORY("\033[32m");
@@ -370,8 +510,14 @@ public enum Card {
 	
 	public String getColorName(){ return type.colorCode+this+"\033[0m"; }
 	
-	void play(DominionPlayer player, Dominion game) {}
-	public void react() {}
+	void play(DominionPlayer player, Dominion game) {
+	   if (type == Type.ACTION)
+	      game.notifyAll("cardPlayed "+player+" "+toString());
+	}
+	
+	void reveal(DominionPlayer player, Dominion game) {
+	   game.notifyAll("cardRevealed "+player+" "+toString());
+	}
 	
 	private Card(int cost) {
 	   this(cost, false);
@@ -393,7 +539,7 @@ public enum Card {
 		this.attack = false;
 	}
    
-   public static List<Card> filter(List<Card> cards, Type target) {
+   public static List<Card> filter(Iterable<Card> cards, Type target) {
       List<Card> out = new ArrayList<Card>();
       for (Card c : cards)
          if (c.type == target)

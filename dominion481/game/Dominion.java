@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dominion481.game.Card.Type;
 import dominion481.server.Game;
 import dominion481.server.GameServer;
 import dominion481.server.RemotePlayer;
@@ -45,9 +46,10 @@ public class Dominion extends Game {
       assert cards.size() >= BOARD_SIZE;
 
       for (int i = 0; i < BOARD_SIZE; i++) {
-         int pivot = (int) floor(random() * (cards.size() - 1));
+         int pivot = (int) floor(random() * (cards.size() - 1 - i))+i;
          Card tmp = cards.set(pivot, cards.get(i));
          cards.set(i, tmp);
+         System.out.println(tmp);
          boardMap.put(tmp, 10);
       }
 
@@ -56,6 +58,9 @@ public class Dominion extends Game {
 
    @Override
    public void run() {
+      notifyAll("actionCards", Card.filter(boardMap.keySet(), Type.ACTION));
+      notifyAll("treasureCards", Card.filter(boardMap.keySet(), Type.TREASURE));
+      notifyAll("victoryCards", Card.filter(boardMap.keySet(), Type.VICTORY));
       List<DominionPlayer> winners = play();
       notifyAll(GameServer.listToString("congratulations", winners));
    }
@@ -139,5 +144,10 @@ public class Dominion extends Game {
    
    public void reveal(DominionPlayer p, Card c) {
       notifyAll("cardReveal "+p+" "+c);
+   }
+
+   public void trash(DominionPlayer player, Card toTrash) {
+      // TODO Auto-generated method stub
+      
    }
 }

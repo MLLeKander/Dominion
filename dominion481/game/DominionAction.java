@@ -21,41 +21,46 @@ public class DominionAction {
       }
    };
    
-   private static final Action chooseCardAction = new Action("choose", "select", "play", "trash", "gain") {
+   private static final Action chooseCardAction = new Action("[cardName]") {
       public void handle(String[] args, ClientHandler client) {
          RemoteDominionPlayer p = (RemoteDominionPlayer)client.getPlayer();
-         if (args.length == 1) {
-            client.write("tooFewArguments");
-            return;
-         }
-         Card c = Card.getCard(args[1]);
+         
+         Card c = Card.getCard(args[0]);
          if (c == null) {
-            client.write("invalidArgument "+args[1]);
+            client.write("invalidCard "+args[0]);
             return;
          }
-         p.ret = c;
-         synchronized (client) { client.notify(); }
+         
+         p.setRet(c);
+         /*p.ret = c;
+         synchronized (client) { client.notify(); }*/
+      }
+      
+      public boolean matches(String s) {
+         return Card.getCard(s) != null;
       }
    };
    
-   private static final Action chooseCardsAction = new Action("choose", "select", "play", "trash") {
+   private static final Action chooseCardsAction = new Action("[cardName...]") {
       public void handle(String[] args, ClientHandler client) {
          RemoteDominionPlayer p = (RemoteDominionPlayer)client.getPlayer();
          List<Card> out = new ArrayList<Card>(args.length);
-         if (args.length == 1) {
-            client.write("tooFewArguments");
-            return;
-         }
-         for (int i = 1; i < args.length; i++) {
+         
+         for (int i = 0; i < args.length; i++) {
             Card c = Card.getCard(args[i]);
-            if (c == null) {
+            if (c == null)
                client.write("invalidCard " + args[i]);
-            } else {
+            else
                out.add(c);
-            }
          }
-         p.ret = out;
-         synchronized (client) { client.notify(); }
+         
+         p.setRet(out);
+         /*p.ret = out;
+         synchronized (client) { client.notify(); }*/
+      }
+      
+      public boolean matches(String s) {
+         return Card.getCard(s) != null;
       }
    };
 
@@ -119,7 +124,7 @@ public class DominionAction {
          }
          return out;
       }
-   }, emptyAction);
+   }, passAction);
    
    static final List<Action> buyPhaseActions = Arrays.asList(new Action(
          "buyCard", "buy", "b") {

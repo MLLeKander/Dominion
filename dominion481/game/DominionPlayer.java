@@ -134,7 +134,7 @@ public abstract class DominionPlayer {
       
       coin -= card.getCost();
       buys--;
-      parentGame.notifyAll(nick + " purchased " + card);
+      parentGame.notifyAll("purchasedCard " + nick + " " + card);
    }
    
    final void endTurn() {
@@ -176,11 +176,12 @@ public abstract class DominionPlayer {
     
       return sum;
    }
+   
+   public void notify(String s) {};
 
    public abstract void actionPhase();
    public abstract void treasurePhase();
    public abstract void buyPhase();
-   public abstract void notifyActions();
    
    //Card Behaviors
    public abstract List<Card> cellar();
@@ -191,10 +192,16 @@ public abstract class DominionPlayer {
    public abstract Card[] remodel();
    public abstract Card throneRoom();
    public abstract boolean libraryDiscard(Card card);
+   public abstract Card bureaucrat();
+   public abstract List<Card> militia();
+   public abstract boolean spyDiscard(Card c, DominionPlayer p);
+   public abstract boolean theifGain(Card toTrash);
    public abstract Card[] mine();
 
    public DominionPlayer(Dominion state, String nick) {
       this.parentGame = state;
       this.nick = nick;
    }
+
+
 }

@@ -19,6 +19,13 @@ public abstract class Action {
    public String toString() {
       return names[0];
    }
+   
+   public boolean matches(String name) {
+      for (String s : getNames())
+         if (s.equalsIgnoreCase(name))
+            return true;
+      return false;
+   }
 
    final static List<Action> serverActions = Arrays.asList(new Action("nick",
          "alias") {
@@ -88,7 +95,7 @@ public abstract class Action {
       public void handle(String[] args, ClientHandler client) {
          client.lobby.startGame();
       }
-   }, new Action("addAi", "ai", "add") {
+   }/*, new Action("addAi", "ai") {
       @Override
       public void handle(String[] args, ClientHandler client) {
          if (args.length == 1) {
@@ -97,6 +104,16 @@ public abstract class Action {
          }
          
          
+      }
+   }*/, new Action("setOpt") {
+      @Override
+      public void handle(String[] args, ClientHandler client) {
+         if (args.length < 3) {
+            client.write("tooFewArguments");
+            return;
+         }
+         
+         client.options.put(args[1], args[2]);
       }
    });
 

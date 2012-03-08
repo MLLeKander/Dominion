@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class ClientHandler extends Thread {
@@ -14,6 +16,7 @@ public class ClientHandler extends Thread {
    Lobby lobby;
    public Game game;
    RemotePlayer player;
+   Map<String, String> options = new HashMap<String, String>();
 
    private final Socket sock;
    private final PrintWriter out;
@@ -69,9 +72,8 @@ public class ClientHandler extends Thread {
    
    public Action findAction(String name, List<Action> actions) {
       for (Action a : actions)
-         for (String s : a.getNames())
-            if (s.equalsIgnoreCase(name))
-               return a;
+         if (a.matches(name))
+            return a;
       return null;
    }
 
@@ -79,7 +81,7 @@ public class ClientHandler extends Thread {
       out.println(s);
    }
 
-   public void write(String action, List<?> objs) {
+   public void write(String action, Iterable<?> objs) {
       out.println(GameServer.listToString(action, objs));
    }
 
@@ -99,6 +101,7 @@ public class ClientHandler extends Thread {
       mode = Mode.SERVER;
       lobby.remove(this);
       lobby = null;
+      options.clear();
    }
 
    public void rename(String newNick) {
@@ -116,5 +119,9 @@ public class ClientHandler extends Thread {
    
    public Game getGame() {
       return game;
+   }
+   
+   public String getOption(String option) {
+      return options.get(option);
    }
 }

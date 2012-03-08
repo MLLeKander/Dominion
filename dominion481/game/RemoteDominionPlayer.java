@@ -40,7 +40,7 @@ public class RemoteDominionPlayer extends DominionPlayer implements
       List<Action> prev = this.acts;
       this.acts = actions;
       
-      client.write(prompt);
+      notify(prompt);
       waitOnClient();
       
       this.acts = prev;
@@ -56,16 +56,15 @@ public class RemoteDominionPlayer extends DominionPlayer implements
       this.acts = prev;
    }
    
+   public void setRet(Object o) {
+      ret = o;
+      notify();
+   }
+   
    private Object getRet() {
       Object out = ret;
       ret = null;
       return out;
-   }
-
-   @Override
-   public void notifyActions() {
-      // TODO Auto-generated method stub
-
    }
 
    @SuppressWarnings("unchecked")
@@ -150,12 +149,38 @@ public class RemoteDominionPlayer extends DominionPlayer implements
       getResponse(cardSelectionActions, "mineGain",
             Card.filter(Arrays.asList(Card.values()), Type.TREASURE));
       out[1] = (Card) getRet();
+
       return out;
    }
 
    @Override
+   public Card bureaucrat() {
+      getResponse(cardSelectionActions, "bureaucratPutback", Card.filter(hand, Type.VICTORY));
+      return (Card) getRet();
+   }
+
+   @SuppressWarnings("unchecked")
+   @Override
+   public List<Card> militia() {
+      getResponse(cardSelectionActions, "militiaDiscard", hand);
+      return (List<Card>) getRet();
+   }
+
+   @Override
+   public boolean spyDiscard(Card c, DominionPlayer p) {
+      getResponse(yesNoActions, "spyDiscard? "+p+" "+c);
+      return (Boolean) getRet();
+   }
+
+   @Override
+   public boolean theifGain(Card c) {
+      getResponse(yesNoActions, "theifGain? "+c);
+      return (Boolean)getRet();
+   }
+
+   @Override
    public void actionPhase() {
-      client.write("hand"+getCardColors(hand));
+      notify("hand"+getCardColors(hand));
       while (actions > 0) {
          List<Card> actionCards = Card.filter(hand, Type.ACTION);
    
@@ -196,7 +221,7 @@ public class RemoteDominionPlayer extends DominionPlayer implements
       });
 
       while (buys > 0) {
-         client.write("buyPhase "+coin+"C"+buys+"B "+getCardColors(availableCards));
+         notify("buyPhase "+coin+"C"+buys+"B "+getCardColors(availableCards));
          
          waitOnClient();
          for (int i = 0; i < availableCards.size(); i++)
@@ -215,6 +240,11 @@ public class RemoteDominionPlayer extends DominionPlayer implements
    @Override
    public List<Action> getActions() {
       return acts;
+   }
+   
+   @Override
+   public void notify(String s) {
+      client.write(s);
    }
 
    public RemoteDominionPlayer(Dominion game, ClientHandler client) {
