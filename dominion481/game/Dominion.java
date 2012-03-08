@@ -19,13 +19,13 @@ public class Dominion extends Game {
 
    public final static HashMap<Card, Integer> DEFAULT_BOARD = new HashMap<Card, Integer>();
    static {
-      DEFAULT_BOARD.put(Card.Province, 8);
-      DEFAULT_BOARD.put(Card.Duchy, 8);
-      DEFAULT_BOARD.put(Card.Estate, 45);
+      DEFAULT_BOARD.put(Card.PROVINCE, 8);
+      DEFAULT_BOARD.put(Card.DUCHY, 8);
+      DEFAULT_BOARD.put(Card.ESTATE, 45);
       // TODO How many Estates?
-      DEFAULT_BOARD.put(Card.Gold, Integer.MAX_VALUE);
-      DEFAULT_BOARD.put(Card.Silver, Integer.MAX_VALUE);
-      DEFAULT_BOARD.put(Card.Copper, Integer.MAX_VALUE);
+      DEFAULT_BOARD.put(Card.GOLD, Integer.MAX_VALUE);
+      DEFAULT_BOARD.put(Card.SILVER, Integer.MAX_VALUE);
+      DEFAULT_BOARD.put(Card.COPPER, Integer.MAX_VALUE);
    }
 
    HashMap<Card, Integer> boardMap = new HashMap<Card, Integer>();
@@ -67,9 +67,9 @@ public class Dominion extends Game {
    public List<DominionPlayer> play() {
       for (DominionPlayer player : players) {
          for (int i = 0; i < 7; i++)
-            player.gain(Card.Copper);
+            player.gain(Card.COPPER);
          for (int i = 0; i < 3; i++)
-            player.gain(Card.Estate);
+            player.gain(Card.ESTATE);
          player.prepareTurn();
       }
 
@@ -126,7 +126,7 @@ public class Dominion extends Game {
          if (i == 0)
             emptyCount++;
 
-      return boardMap.get(Card.Province) == 0 || emptyCount >= 3;
+      return boardMap.get(Card.PROVINCE) == 0 || emptyCount >= 3;
    }
 
    public Map<Card, Integer> getBoardMap() {
