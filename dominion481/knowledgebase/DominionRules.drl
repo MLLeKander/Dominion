@@ -1,8 +1,8 @@
 package dominion481.knowledgebase
 
-import dominion481.knowledgebase.DominionTest.*;
-import dominion481.knowledgebase.DominionTest.KBCard;
-import dominion481.knowledgebase.DominionTest.KBCardType;
+import dominion481.knowledgebase.DominionRecommender.*;
+import dominion481.knowledgebase.DominionRecommender.KBCard;
+import dominion481.knowledgebase.DominionRecommender.KBCardType;
 
 declare PairRecommendation
 	trigger : KBCard @Key
@@ -71,7 +71,7 @@ rule "Suggest Chapel"
 when
 	t : TableCard(card == KBCard.CHAPEL)
 then
-	t.recommendation = 100;
+	t.recommendation = 75;
 end
 
 rule "Only once chapel, normally"
@@ -88,7 +88,7 @@ when
 	buy : TableCard(card.buys > 0)
 then
 	insert (new PairRecommendation(gardens.getCard(), buy.getCard(), 50, 0, 10));
-	insert (new PairRecommendation(buy.getCard(), gardens.getCard(), 0, 0, 50));
+	insert (new PairRecommendation(buy.getCard(), gardens.getCard(), 40, 0, 50));
 end
 
 rule "+Action and +Card"
@@ -96,8 +96,8 @@ when
 	ta : TableCard(card.getActions() > 1)
 	tc : TableCard(card.getCards() > 1)
 then
-	insert (new PairRecommendation(ta.getCard(), tc.getCard(), 15, 0, 0));
-	insert (new PairRecommendation(tc.getCard(), ta.getCard(), 5, 0, 0));
+	insert (new PairRecommendation(ta.getCard(), tc.getCard(), 20, 0, 0));
+	insert (new PairRecommendation(tc.getCard(), ta.getCard(), 10, 0, 0));
 end
 
 rule "+Action and +Coin"
@@ -105,15 +105,15 @@ when
 	ta : TableCard(card.getActions() > 1)
 	tc : TableCard(card.getCoin() > 1)
 then
-	insert (new PairRecommendation(ta.getCard(), tc.getCard(), 15, 0, 0));
-	insert (new PairRecommendation(tc.getCard(), ta.getCard(), 5, 0, 0));
+	insert (new PairRecommendation(ta.getCard(), tc.getCard(), 20, 0, 0));
+	insert (new PairRecommendation(tc.getCard(), ta.getCard(), 10, 0, 0));
 end
 
 rule "General Value"
 when
 	tc : TableCard(c : card)
 then
-	tc.recommendation += (c.getCards() + c.getBuys() + c.getActions()) * 10;
+	tc.recommendation += (c.getCards() + c.getBuys() + c.getActions()) * 15;
 end
 
 rule "Cellar means duchys are go"
@@ -122,6 +122,29 @@ when
 	tv : TableCard(card == KBCard.DUCHY);
 then
 	tv.recommendation += 50;
+end
+
+rule "Devalue terminal actions when +Action not available"
+when
+	tc : TableCard(card.getActions() == 0);
+	not(TableCard(card.getActions() > 1));
+then
+	tc.recommendation -= 20;
+end
+
+rule "Value draws when +Action not available"
+when
+	tc : TableCard(card.getCards() > 1);
+	not(TableCard(card.getActions() > 1));
+then
+	tc.recommendation += 40;
+end
+
+rule "Which is niiiice..."
+when
+	tc : TableCard(card == KBCard.WITCH);
+then
+	tc.recommendation += 30;
 end
 
 
@@ -143,6 +166,22 @@ then
 	t.recommendation += 40;
 end
 
+rule "Theif needs things to steal"
+when
+	e : EnemyCard(card.getType() == KBCardType.TREASURE)
+	t : TableCard(card == KBCard.THIEF)
+then
+	t.recommendation += 15;
+end
+
+rule "Theif can't steal non-treasures"
+when
+	e : EnemyCard(card.getType != KBCardType.TREASURE)
+	t : TableCard(card == KBCard.THIEF)
+then
+	t.recommendation -= 5;
+end
+
 rule "Don't buy cellar with Gardens"
 when
 	d : DeckCard(card == KBCard.GARDENS)
@@ -156,7 +195,7 @@ when
 	d : DeckCard(card := card)
 	t : TableCard(card := card)
 then
-	t.recommendation -= 10;
+	t.recommendation -= 1;
 end
 
 rule "Gradually increase treasure importance"
@@ -175,6 +214,22 @@ then
 	t.recommendation -= 40;
 end
 
+rule "Start Buying Duchies after 20 turns"
+when
+	d : DeckCard(card != KBCard.DUCHY)
+	t : TableCard (card == KBCard.DUCHY)
+then
+	t.recommendation += 3;
+end
+
+rule "Protect against enemy attacks!"
+when
+	d : EnemyCard(card.isAttack())
+	t : TableCard(card == KBCard.MOAT)
+then
+	t.recommendation += 20;
+end
+
 rule "Increase +Action on Action Purchase"
 when
 	d : DeckCard(card.getType() == KBCardType.ACTION)
@@ -185,7 +240,7 @@ end
 
 rule "Throne Room is best with actions"
 when
-	d : DeckCard(card.getType() == KBCardType.ACTION)
+	d : DeckCard(card.getType() == KBCardType.ACTION, card != KBCard.THRONE_ROOM)
 	t : TableCard(card == KBCard.THRONE_ROOM)
 then
 	t.recommendation += 40;
@@ -197,6 +252,14 @@ when
 	t : TableCard(card == KBCard.THRONE_ROOM)
 then
 	t.recommendation -= 10;
+end
+
+rule "Throne Room is not good with more throne rooms!"
+when
+	d : DeckCard(card == KBCard.THRONE_ROOM)
+	t : TableCard(card == KBCard.THRONE_ROOM)
+then
+	t.recommendation -= 60;
 end
 
 rule "Don't flood deck with +actions"
@@ -213,21 +276,4 @@ when
 	t : TableCard(card == KBCard.CELLAR)
 then
 	t.recommendation += 30;
-end
-
-rule "Game nearing end"
-when
-	t : TableCard(card.getType() == KBCardType.VICTORY, card != KBCard.PROVINCE)
-	and
-	(
-		exists(TableCard(card == KBCard.PROVINCE, available <= 2))
-		or
-		(
-			TableCard(c : card, available == 0)
-			and
-			TableCard(card != c, available == 0)
-		)
-	)
-then
-	t.recommendation += 1000;
 end
