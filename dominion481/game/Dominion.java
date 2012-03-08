@@ -11,7 +11,6 @@ import java.util.Map;
 
 import dominion481.game.Card.Type;
 import dominion481.server.Game;
-import dominion481.server.GameServer;
 import dominion481.server.RemotePlayer;
 
 public class Dominion extends Game {
@@ -23,9 +22,9 @@ public class Dominion extends Game {
       DEFAULT_BOARD.put(Card.Duchy, 8);
       DEFAULT_BOARD.put(Card.Estate, 45);
       // TODO How many Estates?
-      DEFAULT_BOARD.put(Card.GOLD, Integer.MAX_VALUE);
-      DEFAULT_BOARD.put(Card.SILVER, Integer.MAX_VALUE);
-      DEFAULT_BOARD.put(Card.COPPER, Integer.MAX_VALUE);
+      DEFAULT_BOARD.put(Card.Gold, Integer.MAX_VALUE);
+      DEFAULT_BOARD.put(Card.Silver, Integer.MAX_VALUE);
+      DEFAULT_BOARD.put(Card.Copper, Integer.MAX_VALUE);
    }
 
    HashMap<Card, Integer> boardMap = new HashMap<Card, Integer>();
@@ -56,23 +55,20 @@ public class Dominion extends Game {
    }
 
    @Override
-   public void run() {
+   protected void play() {
       notifyAll("actionCards", Card.filter(boardMap.keySet(), Type.ACTION));
       notifyAll("treasureCards", Card.filter(boardMap.keySet(), Type.TREASURE));
       notifyAll("victoryCards", Card.filter(boardMap.keySet(), Type.VICTORY));
-      List<DominionPlayer> winners = play();
-      notifyAll(GameServer.listToString("congratulations", winners));
-   }
-
-   public List<DominionPlayer> play() {
+      
       for (DominionPlayer player : players) {
          for (int i = 0; i < 7; i++)
-            player.gain(Card.COPPER);
+            player.gain(Card.Copper);
          for (int i = 0; i < 3; i++)
             player.gain(Card.Estate);
          player.prepareTurn();
       }
 
+      out:
       while (true) {
          for (DominionPlayer p : players) {
             if (p.nick.equals("DEBUG"))
@@ -90,11 +86,13 @@ public class Dominion extends Game {
 
             p.endTurn();
             if (isGameOver()) {
-               notifyAll("gameOver");
-               return getWinners();
+               break out;
             }
          }
       }
+
+      notifyAll("gameOver");
+      notifyAll("congratulations", getWinners());
    }
 
    public List<DominionPlayer> getWinners() {

@@ -19,33 +19,34 @@ public class TicTacToe extends Game {
    }
    
    @Override
-   public void run() {
+   protected void play() {
       players = Arrays.asList(xPlayer, oPlayer);
-      play();
-   }
-   
-   public TicTacToePlayer play() {
       for (int i = 0; i <3; i++)
          for (int o = 0; o <3; o++)
             board[i][o] = '.';
       
       char winner;
+      out:
       while (true) {
          for (TicTacToePlayer p : players) {
             notifyBoard();
+            notifyAll("startTurn "+p);
             p.takeTurn();
+            notifyAll("endTurn "+p);
             if ((winner = isGameOver()) != '.')
-               return winner == 'X' ? xPlayer : oPlayer;
+               break out;
          }
       }
+      
+      notifyAll("congratulations "+(winner == 'X' ? xPlayer : oPlayer));
    }
    
    public void play(TicTacToePlayer p, int x, int y) {
       if (xPlayer != p && oPlayer != p)
          throw new IllegalArgumentException("Unknown player "+p);
-      if (x < 0 || x > 2 || y < 0 || y > 2 || board[x][y] != '.')
+      if (x < 0 || x > 2 || y < 0 || y > 2 || board[y][x] != '.')
          throw new IllegalArgumentException("Invalid location ("+x+","+y+")");
-      board[x][y] = p == xPlayer ? 'X' : 'O';
+      board[y][x] = p == xPlayer ? 'X' : 'O';
    }
    
    public char isGameOver() {

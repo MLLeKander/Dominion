@@ -5,6 +5,15 @@ import java.util.List;
 public abstract class Game extends Thread {
    public abstract List<RemotePlayer> getRemotePlayers();
    
+   public final void run() {
+      play();
+      
+      for (RemotePlayer p : getRemotePlayers())
+         p.getClient().leaveLobby();
+   }
+   
+   protected abstract void play();
+   
    public void notifyAll(String message) {
       GameServer.log("notifyAllGame", message);
       

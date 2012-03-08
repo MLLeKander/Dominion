@@ -168,7 +168,7 @@ public enum Card {
     * Gardens
     * VP Value is deck size / 10, rounded down
     */
-   GARDENS(Type.VICTORY, 4, 0, 0) {
+   Gardens(Type.VICTORY, 4, 0, 0) {
       public int getVp(DominionPlayer player) {
          return (player.deck.size() + player.discard.size()) / 10;
       }
@@ -482,9 +482,9 @@ public enum Card {
    },
    
    //Base treasure cards
-   GOLD(Type.TREASURE, 6, 0, 3),
-   SILVER(Type.TREASURE, 3, 0, 2),
-   COPPER(Type.TREASURE, 0, 0, 1),
+   Gold(Type.TREASURE, 6, 0, 3),
+   Silver(Type.TREASURE, 3, 0, 2),
+   Copper(Type.TREASURE, 0, 0, 1),
    
   //Base victory cards
    Province(Type.VICTORY, 8, 6, 0),

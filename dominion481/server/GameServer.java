@@ -94,7 +94,7 @@ public class GameServer {
    public GameFactory getFactory(String name) {
       GameFactory factory = null;
       for (GameFactory gf : availableGames)
-         if (gf.getName().equalsIgnoreCase(name)) {
+         if (gf.getName().toUpperCase().startsWith(name.toUpperCase())) {
             factory = gf;
             break;
          }

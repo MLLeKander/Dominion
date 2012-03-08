@@ -54,7 +54,7 @@ public class BigMoneyAgent {
       echo("redeem", out);
 
       for (String s : readUntil("buyPhase", in).split("\\s+")) {
-         if (s.startsWith(prefix) || s.equals(Card.PROVINCE.getColorName())) {
+         if (s.startsWith(prefix) || s.equals(Card.Province.getColorName())) {
             card = s.replaceAll("\033\\[\\d+m", "");
             break;
          }
