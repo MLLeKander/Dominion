@@ -18,4 +18,11 @@ public abstract class Game extends Thread {
       for (RemotePlayer p : getRemotePlayers())
          p.getClient().write(message, objs);
    }
+   
+   public void notifyAll(String message, Object[] obs) {
+      GameServer.log("notifyAllGame", message);
+      
+      for (RemotePlayer p : getRemotePlayers())
+         p.getClient().write(message, obs);
+   }
 }

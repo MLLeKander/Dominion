@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dominion481.game.DominionFactory;
+import dominion481.tictactoe.TicTacToeFactory;
 
 public class GameServer {
    long guestCount = 1;
@@ -18,6 +19,7 @@ public class GameServer {
 
    public GameServer(int port) {
       availableGames.add(new DominionFactory());
+      availableGames.add(new TicTacToeFactory());
 
       this.port = port;
    }

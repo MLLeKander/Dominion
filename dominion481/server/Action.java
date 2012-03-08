@@ -134,4 +134,8 @@ public abstract class Action {
          client.write("listUsers", client.server.clients);
       }
    });
+   
+   public final static Action emptyAction = new Action("") {
+      public void handle(String[] args, ClientHandler client) {}
+   };
 }

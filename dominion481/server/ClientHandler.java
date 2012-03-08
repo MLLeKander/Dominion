@@ -85,6 +85,10 @@ public class ClientHandler extends Thread {
       out.println(GameServer.listToString(action, objs));
    }
 
+   public void write(String action, Object[] objs) {
+      out.println(GameServer.listToString(action, objs));
+   }
+
    public void joinLobby(Lobby l) {
       lobby = l;
       lobby.add(this);
