@@ -25,13 +25,13 @@ import org.drools.runtime.StatefulKnowledgeSession;
  * This is a sample class to launch a rule.
  */
 public class DominionRecommender {
-   public enum KbcardType {
+   public enum KBCardType {
       Action,
       Treasure,
       Victory
    }
    
-   public enum Kbcard {
+   public enum KBCard {
       Copper(KBCardType.Treasure, 0),
       Silver(KBCardType.Treasure, 3),
       Gold(KBCardType.Treasure, 6),
@@ -55,8 +55,8 @@ public class DominionRecommender {
       Smithy(4, false, 0, 0, 3, 0),
       Spy(4, true, 1, 0, 1, 0),
       Thief(4, true, 0, 0, 0, 0),
-      Throne_Room(4, false, 0, 0, 0, 0),
-      Council_Room(5, false, 0, 1, 4, 0),
+      ThroneRoom(4, false, 0, 0, 0, 0),
+      CouncilRoom(5, false, 0, 1, 4, 0),
       Laboratory(5, false, 1, 0, 2, 0),
       Library(5, false, 0, 0, 0, 0),
       Market(5, false, 1, 1, 1, 1),
@@ -73,7 +73,7 @@ public class DominionRecommender {
       private int buys;
       private int coin;
       
-      Kbcard(int cost, boolean attack, int actions, int buys, int cards, int coin) {
+      KBCard(int cost, boolean attack, int actions, int buys, int cards, int coin) {
          this(KBCardType.Action, cost);
          this.attack = attack;
          this.cards = cards;
@@ -281,7 +281,7 @@ public class DominionRecommender {
       for (int i = 0; i < 10; i++) {
          Kbcard card = cards.remove(rand.nextInt(cards.size()));
          System.out.println(card);
-         tableCards.put(card, card.getType() == KbcardType.Victory ? 12 : 10);
+         tableCards.put(card, card.getType() == KBCardType.Victory ? 12 : 10);
       }
       
       DominionRecommender recommender = new DominionRecommender(tableCards); 

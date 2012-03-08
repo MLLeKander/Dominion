@@ -126,7 +126,7 @@ end
 
 rule "Devalue terminal actions when +Action not available"
 when
-	tc : TableCard(card.getActions() == 0, card != KBCard.Throne_Room, card.getType() == KBCardType.ACTION);
+	tc : TableCard(card.getActions() == 0, card != KBCard.ThroneRoom, card.getType() == KBCardType.Action);
 	not(TableCard(card.getActions() > 1));
 then
 	tc.recommendation -= 20;
@@ -216,7 +216,7 @@ end
 rule "Gradually increase treasure importance"
 when
 	d : DeckCard(card.getType() != KBCardType.Treasure)
-	t : TableCard(card.getType() == KBCardType.Treasure, card != KBCard.COPPER)
+	t : TableCard(card.getType() == KBCardType.Treasure, card != KBCard.Copper)
 then
 	t.recommendation += 10;
 end
@@ -233,7 +233,7 @@ end
 rule "Balance Treasures"
 when
 	d : DeckCard(card.getType() == KBCardType.Treasure)
-	t : TableCard (card.getType() == KBCardType.Treasure, card.getType() != KBCard.COPPER)
+	t : TableCard (card.getType() == KBCardType.Treasure, card.getType() != KBCard.Copper)
 then
 	t.recommendation -= 40;
 end
@@ -272,8 +272,8 @@ end
 
 rule "Throne Room is best with actions"
 when
-	d : DeckCard(card.getType() == KBCardType.Action, card != KBCard.THRONE_ROOM)
-	t : TableCard(card == KBCard.Throne_Room)
+	d : DeckCard(card.getType() == KBCardType.Action, card != KBCard.ThroneRoom)
+	t : TableCard(card == KBCard.ThroneRoom)
 then
 	t.recommendation += 40;
 end
@@ -281,15 +281,15 @@ end
 rule "Throne Room requires action flood"
 when
 	d : DeckCard(card.getType() != KBCardType.Action)
-	t : TableCard(card == KBCard.Throne_Room)
+	t : TableCard(card == KBCard.ThroneRoom)
 then
 	t.recommendation -= 10;
 end
 
 rule "Throne Room is not good with more throne rooms!"
 when
-	d : DeckCard(card == KBCard.Throne_Room)
-	t : TableCard(card == KBCard.Throne_Room)
+	d : DeckCard(card == KBCard.ThroneRoom)
+	t : TableCard(card == KBCard.ThroneRoom)
 then
 	t.recommendation -= 60;
 end
