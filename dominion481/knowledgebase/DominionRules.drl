@@ -34,57 +34,57 @@ end
 
 rule "Always Recommend Province"
 when
-	t : TableCard(card == KBCard.PROVINCE)
+	t : TableCard(card == KBCard.Province)
 then
 	t.recommendation = 9000;
 end
 
 rule "Duchy if nothing better"
 when
-	t : TableCard(card == KBCard.DUCHY)
+	t : TableCard(card == KBCard.Duchy)
 then
 	t.recommendation = 50;
 end
 
 rule "Strongly Recommend Gold"
 when
-	t : TableCard(card == KBCard.GOLD)
+	t : TableCard(card == KBCard.Gold)
 then
 	t.recommendation = 200;
 end
 
 rule "Suggest Silver"
 when
-	t : TableCard(card == KBCard.SILVER)
+	t : TableCard(card == KBCard.Silver)
 then
 	t.recommendation = 100;
 end
 
 rule "Don't buy Copper"
 when
-	t : TableCard(card == KBCard.COPPER)
+	t : TableCard(card == KBCard.Copper)
 then
 	t.recommendation = -1;
 end
 
 rule "Suggest Chapel"
 when
-	t : TableCard(card == KBCard.CHAPEL)
+	t : TableCard(card == KBCard.Chapel)
 then
 	t.recommendation = 75;
 end
 
 rule "Only once chapel, normally"
 when
-	d : DeckCard(card == KBCard.CHAPEL)
-	t : TableCard(card == KBCard.CHAPEL)
+	d : DeckCard(card == KBCard.Chapel)
+	t : TableCard(card == KBCard.Chapel)
 then
 	t.recommendation -= 100;
 end
 
 rule "Gardens with +Buy"
 when
-	gardens : TableCard(card == KBCard.GARDENS)
+	gardens : TableCard(card == KBCard.Gardens)
 	buy : TableCard(card.buys > 0)
 then
 	insert (new PairRecommendation(gardens.getCard(), buy.getCard(), 50, 0, 10));
@@ -118,15 +118,15 @@ end
 
 rule "Cellar means duchys are go"
 when
-	tc : TableCard(card == KBCard.CELLAR);
-	tv : TableCard(card == KBCard.DUCHY);
+	tc : TableCard(card == KBCard.Cellar);
+	tv : TableCard(card == KBCard.Duchy);
 then
 	tv.recommendation += 50;
 end
 
 rule "Devalue terminal actions when +Action not available"
 when
-	tc : TableCard(card.getActions() == 0, card != KBCard.THRONE_ROOM, card.getType() == KBCardType.ACTION);
+	tc : TableCard(card.getActions() == 0, card != KBCard.Throne_Room, card.getType() == KBCardType.ACTION);
 	not(TableCard(card.getActions() > 1));
 then
 	tc.recommendation -= 20;
@@ -142,14 +142,14 @@ end
 
 rule "Which is nice"
 when
-	tc : TableCard(card == KBCard.WITCH);
+	tc : TableCard(card == KBCard.Witch);
 then
 	tc.recommendation += 30;
 end
 
 rule "Bureaucrat is a good, early buy"
 when
-	tc : TableCard(card == KBCard.BUREAUCRAT);
+	tc : TableCard(card == KBCard.Bureaucrat);
 then
 	tc.recommendation += 50;
 end
@@ -157,7 +157,7 @@ end
 rule "Keep Bureaucrad an early buy"
 when
 	d : DeckCard();
-	tc : TableCard(card == KBCard.BUREAUCRAT);
+	tc : TableCard(card == KBCard.Bureaucrat);
 then
 	tc.recommendation -= 10;
 end
@@ -167,40 +167,40 @@ end
 
 rule "Adventurer loves silver"
 when
-	d : DeckCard(card == KBCard.SILVER)
-	t : TableCard(card == KBCard.ADVENTURER)
+	d : DeckCard(card == KBCard.Silver)
+	t : TableCard(card == KBCard.Adventurer)
 then
 	t.recommendation += 20;
 end
 
 rule "Adventurer loves gold"
 when
-	d : DeckCard(card == KBCard.GOLD)
-	t : TableCard(card == KBCard.ADVENTURER)
+	d : DeckCard(card == KBCard.Gold)
+	t : TableCard(card == KBCard.Adventurer)
 then
 	t.recommendation += 40;
 end
 
 rule "Theif needs things to steal"
 when
-	e : EnemyCard(card.getType() == KBCardType.TREASURE)
-	t : TableCard(card == KBCard.THIEF)
+	e : EnemyCard(card.getType() == KBCardType.Treasure)
+	t : TableCard(card == KBCard.Thief)
 then
 	t.recommendation += 15;
 end
 
 rule "Theif can't steal non-treasures"
 when
-	e : EnemyCard(card.getType != KBCardType.TREASURE)
-	t : TableCard(card == KBCard.THIEF)
+	e : EnemyCard(card.getType != KBCardType.Treasure)
+	t : TableCard(card == KBCard.Thief)
 then
 	t.recommendation -= 5;
 end
 
 rule "Don't buy cellar with Gardens"
 when
-	d : DeckCard(card == KBCard.GARDENS)
-	t : TableCard(card == KBCard.CELLAR)
+	d : DeckCard(card == KBCard.Gardens)
+	t : TableCard(card == KBCard.Cellar)
 then
 	t.recommendation -= 100;
 end
@@ -215,8 +215,8 @@ end
 
 rule "Gradually increase treasure importance"
 when
-	d : DeckCard(card.getType() != KBCardType.TREASURE)
-	t : TableCard(card.getType() == KBCardType.TREASURE, card != KBCard.COPPER)
+	d : DeckCard(card.getType() != KBCardType.Treasure)
+	t : TableCard(card.getType() == KBCardType.Treasure, card != KBCard.COPPER)
 then
 	t.recommendation += 10;
 end
@@ -224,24 +224,24 @@ end
 rule "Keep buying copper if Gardens is owned"
 when
 	d : DeckCard();
-	t : TableCard(card == KBCard.COPPER)
-	exists (DeckCard(card == KBCard.GARDENS))
+	t : TableCard(card == KBCard.Copper)
+	exists (DeckCard(card == KBCard.Gardens))
 then
 	t.recommendation = 10;
 end
 
 rule "Balance Treasures"
 when
-	d : DeckCard(card.getType() == KBCardType.TREASURE)
-	t : TableCard (card.getType() == KBCardType.TREASURE, card.getType() != KBCard.COPPER)
+	d : DeckCard(card.getType() == KBCardType.Treasure)
+	t : TableCard (card.getType() == KBCardType.Treasure, card.getType() != KBCard.COPPER)
 then
 	t.recommendation -= 40;
 end
 
 rule "Start Buying Duchies after 20 turns"
 when
-	d : DeckCard(card != KBCard.DUCHY)
-	t : TableCard (card == KBCard.DUCHY)
+	d : DeckCard(card != KBCard.Duchy)
+	t : TableCard (card == KBCard.Duchy)
 then
 	t.recommendation += 3;
 end
@@ -249,22 +249,22 @@ end
 rule "Protect against enemy attacks!"
 when
 	d : EnemyCard(card.isAttack())
-	t : TableCard(card == KBCard.MOAT)
+	t : TableCard(card == KBCard.Moat)
 then
 	t.recommendation += 20;
 end
 
 rule "Moat's not THAT good"
 when
-	d : DeckCard(card == KBCard.MOAT)
-	t : TableCard(card == KBCard.MOAT)
+	d : DeckCard(card == KBCard.Moat)
+	t : TableCard(card == KBCard.Moat)
 then
 	t.recommendation /= 2;
 end 
 
 rule "Increase +Action on Action Purchase"
 when
-	d : DeckCard(card.getType() == KBCardType.ACTION)
+	d : DeckCard(card.getType() == KBCardType.Action)
 	t : TableCard(card.getActions() > 1)
 then
 	t.recommendation += 20;
@@ -272,24 +272,24 @@ end
 
 rule "Throne Room is best with actions"
 when
-	d : DeckCard(card.getType() == KBCardType.ACTION, card != KBCard.THRONE_ROOM)
-	t : TableCard(card == KBCard.THRONE_ROOM)
+	d : DeckCard(card.getType() == KBCardType.Action, card != KBCard.THRONE_ROOM)
+	t : TableCard(card == KBCard.Throne_Room)
 then
 	t.recommendation += 40;
 end
 
 rule "Throne Room requires action flood"
 when
-	d : DeckCard(card.getType() != KBCardType.ACTION)
-	t : TableCard(card == KBCard.THRONE_ROOM)
+	d : DeckCard(card.getType() != KBCardType.Action)
+	t : TableCard(card == KBCard.Throne_Room)
 then
 	t.recommendation -= 10;
 end
 
 rule "Throne Room is not good with more throne rooms!"
 when
-	d : DeckCard(card == KBCard.THRONE_ROOM)
-	t : TableCard(card == KBCard.THRONE_ROOM)
+	d : DeckCard(card == KBCard.Throne_Room)
+	t : TableCard(card == KBCard.Throne_Room)
 then
 	t.recommendation -= 60;
 end
@@ -304,8 +304,8 @@ end
 
 rule "Cellar deals with VP Cards"
 when
-	d : DeckCard(card.getType() == KBCardType.VICTORY)
-	t : TableCard(card == KBCard.CELLAR)
+	d : DeckCard(card.getType() == KBCardType.Victory)
+	t : TableCard(card == KBCard.Cellar)
 then
 	t.recommendation += 30;
 end

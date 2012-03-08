@@ -25,47 +25,47 @@ import org.drools.runtime.StatefulKnowledgeSession;
  * This is a sample class to launch a rule.
  */
 public class DominionRecommender {
-   public enum KBCardType {
-      ACTION,
-      TREASURE,
-      VICTORY
+   public enum KbcardType {
+      Action,
+      Treasure,
+      Victory
    }
    
-   public enum KBCard {
-      COPPER(KBCardType.TREASURE, 0),
-      SILVER(KBCardType.TREASURE, 3),
-      GOLD(KBCardType.TREASURE, 6),
-      ESTATE(KBCardType.VICTORY, 2),
-      DUCHY(KBCardType.VICTORY, 5),
-      PROVINCE(KBCardType.VICTORY, 8),
-      CELLAR(2, false, 1, 0, 0, 0),
-      CHAPEL(2, false, 0, 0, 0, 0),
-      MOAT(2, false, 0, 0, 2, 0),
-      CHANCELLOR(3, false, 0, 0, 0, 2),
-      VILLAGE(3, false, 2, 0, 1, 0),
-      WOODCUTTER(3, false, 0, 1, 0, 2),
-      WORKSHOP(3, false, 0, 0, 0, 0),
-      BUREAUCRAT(4, true, 0, 0, 0, 2),
-      FEAST(4, false, 0, 0, 0, 0),
-      FESTIVAL(5, false, 2, 1, 0, 2),
-      GARDENS(KBCardType.VICTORY, 4),
-      MILITIA(4, true, 0, 0, 0, 2),
-      MONEYLENDER(4, false, 0, 0, 0, 0),
-      REMODEL(4, false, 0, 0, 0, 0),
-      SMITHY(4, false, 0, 0, 3, 0),
-      SPY(4, true, 1, 0, 1, 0),
-      THIEF(4, true, 0, 0, 0, 0),
-      THRONE_ROOM(4, false, 0, 0, 0, 0),
-      COUNCIL_ROOM(5, false, 0, 1, 4, 0),
-      LABORATORY(5, false, 1, 0, 2, 0),
-      LIBRARY(5, false, 0, 0, 0, 0),
-      MARKET(5, false, 1, 1, 1, 1),
-      MINE(5, false, 0, 0, 0, 0),
-      WITCH(6, true, 0, 0, 2, 0),
-      ADVENTURER(6, false, 0, 0, 0, 0)
+   public enum Kbcard {
+      Copper(KBCardType.Treasure, 0),
+      Silver(KBCardType.Treasure, 3),
+      Gold(KBCardType.Treasure, 6),
+      Estate(KBCardType.Victory, 2),
+      Duchy(KBCardType.Victory, 5),
+      Province(KBCardType.Victory, 8),
+      Cellar(2, false, 1, 0, 0, 0),
+      Chapel(2, false, 0, 0, 0, 0),
+      Moat(2, false, 0, 0, 2, 0),
+      Chancellor(3, false, 0, 0, 0, 2),
+      Village(3, false, 2, 0, 1, 0),
+      Woodcutter(3, false, 0, 1, 0, 2),
+      Workshop(3, false, 0, 0, 0, 0),
+      Bureaucrat(4, true, 0, 0, 0, 2),
+      Feast(4, false, 0, 0, 0, 0),
+      Festival(5, false, 2, 1, 0, 2),
+      Gardens(KBCardType.Victory, 4),
+      Militia(4, true, 0, 0, 0, 2),
+      Moneylender(4, false, 0, 0, 0, 0),
+      Remodel(4, false, 0, 0, 0, 0),
+      Smithy(4, false, 0, 0, 3, 0),
+      Spy(4, true, 1, 0, 1, 0),
+      Thief(4, true, 0, 0, 0, 0),
+      Throne_Room(4, false, 0, 0, 0, 0),
+      Council_Room(5, false, 0, 1, 4, 0),
+      Laboratory(5, false, 1, 0, 2, 0),
+      Library(5, false, 0, 0, 0, 0),
+      Market(5, false, 1, 1, 1, 1),
+      Mine(5, false, 0, 0, 0, 0),
+      Witch(6, true, 0, 0, 2, 0),
+      Adventurer(6, false, 0, 0, 0, 0)
       ;
       
-      private KBCardType type;
+      private KbcardType type;
       private int cost;
       private boolean attack;
       private int cards;
@@ -73,8 +73,8 @@ public class DominionRecommender {
       private int buys;
       private int coin;
       
-      KBCard(int cost, boolean attack, int actions, int buys, int cards, int coin) {
-         this(KBCardType.ACTION, cost);
+      Kbcard(int cost, boolean attack, int actions, int buys, int cards, int coin) {
+         this(KBCardType.Action, cost);
          this.attack = attack;
          this.cards = cards;
          this.actions = actions;
@@ -82,7 +82,7 @@ public class DominionRecommender {
          this.coin = coin;
       }
       
-      KBCard(KBCardType type, int cost) {
+      Kbcard(KBCardType type, int cost) {
          this.type = type;
          this.cost = cost;
       }
@@ -103,7 +103,7 @@ public class DominionRecommender {
          return coin;
       }
 
-      public KBCardType getType() {
+      public KbcardType getType() {
          return type;
       }
       
@@ -117,7 +117,7 @@ public class DominionRecommender {
    }
    
    public static class TableCard {
-      private KBCard card;
+      private Kbcard card;
       private int available;
       public int recommendation;
       
@@ -126,7 +126,7 @@ public class DominionRecommender {
          this.available = available;
       }
       
-      public KBCard getCard() {
+      public Kbcard getCard() {
          return card;
       }
       
@@ -152,13 +152,13 @@ public class DominionRecommender {
    }
    
    public static class DeckCard {
-      private KBCard card;
+      private Kbcard card;
 
       public DeckCard(KBCard card) {
          this.card = card;
       }
 
-      public KBCard getCard() {
+      public Kbcard getCard() {
          return card;
       }
 
@@ -168,13 +168,13 @@ public class DominionRecommender {
    }
    
    public static class EnemyCard {
-      private KBCard card;
+      private Kbcard card;
 
       public EnemyCard(KBCard card) {
          this.card = card;
       }
 
-      public KBCard getCard() {
+      public Kbcard getCard() {
          return card;
       }
 
@@ -218,7 +218,7 @@ public class DominionRecommender {
       }
    }
    
-   public KBCard getRecommendation(int coin) {
+   public Kbcard getRecommendation(int coin) {
       session.fireAllRules();
       Collections.sort(cards, new Comparator<TableCard>() {
          public int compare(TableCard arg0, TableCard arg1) {
@@ -242,7 +242,7 @@ public class DominionRecommender {
       
       KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
       kbuilder.add(ResourceFactory.newClassPathResource("dominion481/knowledgebase/DominionRules.drl"),
-          ResourceType.DRL);
+          ResourceType.Drl);
       KnowledgeBuilderErrors errors = kbuilder.getErrors();
       if (errors.size() > 0) {
         for (KnowledgeBuilderError error : errors) {
@@ -262,26 +262,26 @@ public class DominionRecommender {
       // load up the knowledge base
 
       List<KBCard> cards = new ArrayList<KBCard>(Arrays.asList(KBCard.values()));
-      cards.remove(KBCard.PROVINCE);
-      cards.remove(KBCard.DUCHY);
-      cards.remove(KBCard.ESTATE);
-      cards.remove(KBCard.COPPER);
-      cards.remove(KBCard.SILVER);
-      cards.remove(KBCard.GOLD);
+      cards.remove(KBCard.Province);
+      cards.remove(KBCard.Duchy);
+      cards.remove(KBCard.Estate);
+      cards.remove(KBCard.Copper);
+      cards.remove(KBCard.Silver);
+      cards.remove(KBCard.Gold);
       
       Map<KBCard, Integer> tableCards = new HashMap<KBCard, Integer>();
-      tableCards.put(KBCard.PROVINCE, 8);
-      tableCards.put(KBCard.DUCHY, 8);
-      tableCards.put(KBCard.ESTATE, 8);
-      tableCards.put(KBCard.GOLD, Integer.MAX_VALUE);
-      tableCards.put(KBCard.COPPER, Integer.MAX_VALUE);
-      tableCards.put(KBCard.SILVER, Integer.MAX_VALUE);
+      tableCards.put(KBCard.Province, 8);
+      tableCards.put(KBCard.Duchy, 8);
+      tableCards.put(KBCard.Estate, 8);
+      tableCards.put(KBCard.Gold, Integer.MAX_VALUE);
+      tableCards.put(KBCard.Copper, Integer.MAX_VALUE);
+      tableCards.put(KBCard.Silver, Integer.MAX_VALUE);
       
       Random rand = new Random();
       for (int i = 0; i < 10; i++) {
-         KBCard card = cards.remove(rand.nextInt(cards.size()));
+         Kbcard card = cards.remove(rand.nextInt(cards.size()));
          System.out.println(card);
-         tableCards.put(card, card.getType() == KBCardType.VICTORY ? 12 : 10);
+         tableCards.put(card, card.getType() == KbcardType.Victory ? 12 : 10);
       }
       
       DominionRecommender recommender = new DominionRecommender(tableCards); 
@@ -294,12 +294,12 @@ public class DominionRecommender {
             switch (in) {
             case "b":
                System.out.println("What card?");
-               KBCard mycard = KBCard.valueOf(s.nextLine().toUpperCase());
+               Kbcard mycard = KBCard.valueOf(s.nextLine().toUpperCase());
                recommender.addPurchase(mycard);
                break;
             case "e":
                System.out.println("What card?");
-               KBCard hiscard = KBCard.valueOf(s.nextLine().toUpperCase());
+               Kbcard hiscard = KBCard.valueOf(s.nextLine().toUpperCase());
                recommender.addEnemyPurchase(hiscard);
                break;
             case "r":
