@@ -353,7 +353,7 @@ public enum Card {
    Estate(Type.VICTORY, 2, 3, 0)
 	;
 	public enum Type {
-		ACTION("\033[36m"), TREASURE("\033[32m"), VICTORY("\033[33m");
+		ACTION("\033[36m"), TREASURE("\033[33m"), VICTORY("\033[32m");
 		
 		public final String colorCode;
 		private Type(String color) { colorCode = color; }
@@ -367,6 +367,8 @@ public enum Card {
 	public int getCost() { return cost; }
 	public int getTreasureValue() { return treasureValue; }
 	public boolean isAttack() { return attack; }
+	
+	public String getColorName(){ return type.colorCode+this+"\033[0m"; }
 	
 	void play(DominionPlayer player, Dominion game) {}
 	public void react() {}
@@ -397,5 +399,16 @@ public enum Card {
          if (c.type == target)
             out.add(c);
       return out;
+   }
+   
+   public static Card getCard(String name) {
+      name = name.toUpperCase();
+      for (Card c : values()) {
+         if (c.toString().toUpperCase().startsWith(name)
+               || c.getColorName().toUpperCase().startsWith(name)) {
+            return c;
+         }
+      }
+      return null;
    }
 }

@@ -13,6 +13,29 @@ public class DominionAction {
       public void handle(String[] args, ClientHandler client) {
       }
    };
+   
+   private static final Action passAction = new Action("pass") {
+      @Override
+      public void handle(String[] args, ClientHandler client) {
+         synchronized (client) { client.notify(); }
+      }
+   };
+   
+   private static final Action chooseCardAction = new Action("choose", "select", "play", "trash") {
+      public void handle(String[] args, ClientHandler client) {
+         RemoteDominionPlayer p = (RemoteDominionPlayer)client.getPlayer();
+         if (args.length == 1) {
+            client.write("tooFewArguments");
+            return;
+         }
+         Card c = Card.getCard(args[1]);
+         if (c == null || !p.hand.contains(c)) {
+            client.write("invalidArgument "+args[1]);
+            return;
+         }
+         p.ret = c;
+      }
+   };
 
    static final List<Action> defaultActions = Arrays.asList(new Action(
          "getStatus", "status") {
@@ -39,7 +62,7 @@ public class DominionAction {
    }, emptyAction);
 
    static final List<Action> treasurePhaseActions = Arrays.asList(new Action(
-         "redeem") {
+         "redeem", "r") {
       @Override
       public void handle(String[] args, ClientHandler client) {
          DominionPlayer player = (DominionPlayer) client.getPlayer();
@@ -52,9 +75,7 @@ public class DominionAction {
                client.write("invalidCard " + c);
             }
          }
-         synchronized (client) {
-            client.notify();
-         }
+         synchronized (client) { client.notify(); }
       }
 
       private List<Card> getRedemptionCards(String[] args,
@@ -66,10 +87,11 @@ public class DominionAction {
                   out.add(c);
          } else {
             for (int i = 1; i < args.length; i++) {
-               try {
-                  out.add(Enum.valueOf(Card.class, args[i]));
-               } catch (IllegalArgumentException e) {
+               Card c = Card.getCard(args[i]);
+               if (c == null) {
                   client.write("invalidCard " + args[i]);
+               } else {
+                  out.add(c);
                }
             }
          }
@@ -78,22 +100,45 @@ public class DominionAction {
    }, emptyAction);
    
    static final List<Action> buyPhaseActions = Arrays.asList(new Action(
-         "buyCard", "buy") {
+         "buyCard", "buy", "b") {
       @Override
       public void handle(String[] args, ClientHandler client) {
          DominionPlayer p = (DominionPlayer) client.getPlayer();
          if (args.length < 2) {
             p.buys = 0;
          } else {
-            try {
-               p.buy(Enum.valueOf(Card.class, args[1]));
-               synchronized (client) {
-                  client.notify();
-               }
-            } catch (IllegalArgumentException e) {
+            Card c = Card.getCard(args[1]);
+            if (c == null) {
                client.write("invalidCard " + args[1]);
+            } else {
+               try {
+                  p.buy(c);
+               } catch (IllegalArgumentException e) {
+                  client.write(e.getMessage());
+               }
             }
          }
+         synchronized (client) {
+            client.notify();
+         }
       }
-   }, emptyAction);
+   }, passAction);
+   
+   static final List<Action> actionPhaseActions = Arrays.asList(chooseCardAction, passAction);
+   
+   static final List<Action> yesNoActions = Arrays.asList(new Action("yes") {
+      public void handle(String[] args, ClientHandler client) {
+         ((RemoteDominionPlayer)client.getPlayer()).ret = true;
+         synchronized (client) { client.notify(); }
+      }
+   }, new Action("no") {
+      public void handle(String[] args, ClientHandler client) {
+         ((RemoteDominionPlayer)client.getPlayer()).ret = false;
+         synchronized (client) { client.notify(); }
+      }
+   });
+   
+   static final List<Action> passableCardSelectionActions = Arrays.asList(chooseCardAction, passAction);
+   
+   static final List<Action> cardSelectionActions = Arrays.asList(chooseCardAction, emptyAction);
 }

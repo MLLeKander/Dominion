@@ -55,7 +55,7 @@ public class ClientHandler extends Thread {
    }
 
    private void respondTo(String[] args) {
-      if (args.length == 0)
+      if (args.length == 0 || args[0].equals(""))
          return;
 
       Action action = findAction(args[0], mode.getActions(this));

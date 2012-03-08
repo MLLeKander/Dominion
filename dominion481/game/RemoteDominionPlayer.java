@@ -10,10 +10,49 @@ import dominion481.server.Action;
 import dominion481.server.ClientHandler;
 import dominion481.server.RemotePlayer;
 
+import static dominion481.game.DominionAction.*;
+
 public class RemoteDominionPlayer extends DominionPlayer implements
       RemotePlayer {
    private ClientHandler client;
-   private List<Action> actions = DominionAction.defaultActions;
+   private List<Action> actions = defaultActions;
+   Object ret;
+   
+   private void waitOnClient() {
+      synchronized (client) {
+         try {
+            client.wait();
+         } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+         }
+      }
+   }
+   
+   private void getResponse(List<Action> actions, String prompt) {
+      List<Action> prev = this.actions;
+      this.actions = actions;
+      
+      client.write(prompt);
+      waitOnClient();
+      
+      this.actions = prev;
+   }
+   
+   private void getResponse(List<Action> actions, String prompt, List<?> objs) {
+      List<Action> prev = this.actions;
+      this.actions = actions;
+      
+      client.write(prompt, objs);
+      waitOnClient();
+      
+      this.actions = prev;
+   }
+   
+   private Object getRet() {
+      Object out = ret;
+      ret = null;
+      return out;
+   }
 
    @Override
    public void notifyActions() {
@@ -53,20 +92,33 @@ public class RemoteDominionPlayer extends DominionPlayer implements
 
    @Override
    public Card[] remodel() {
-      // TODO Auto-generated method stub
-      return null;
+      Card[] out = new Card[2];
+      getResponse(cardSelectionActions, "discard", hand);
+      out[0] = (Card)getRet();
+      getResponse(cardSelectionActions, "gain", hand);
+      out[1] = (Card)getRet();
+      return out;
    }
 
    @Override
    public Card throneRoom() {
-      // TODO Auto-generated method stub
-      return null;
+      List<Card> actionCards = Card.filter(hand, Type.ACTION);
+
+      if (actionCards.size() == 0)
+         return null;
+
+      getResponse(passableCardSelectionActions, "throneRoom", actionCards);
+
+      return (Card)getRet();
    }
 
    @Override
    public boolean libraryDiscard(Card card) {
-      // TODO Auto-generated method stub
-      return false;
+      client.getGame().notifyAll("cardReveal "+client.getPlayer()+" "+card);
+
+      getResponse(yesNoActions, "keep? "+card);
+
+      return !(Boolean)getRet();
    }
 
    @Override
@@ -83,26 +135,18 @@ public class RemoteDominionPlayer extends DominionPlayer implements
       if (actionCards.size() == 0)
          return;
 
-      List<Action> prev = actions;
-      client.write("actionPhase", actionCards);
-      actions = prev;
+      getResponse(actionPhaseActions, "actionPhase", actionCards);
+      
+      Card c = (Card)getRet();
+      if (c != null)
+         playAction(c);
    }
 
    @Override
    public void treasurePhase() {
       List<Card> treasureCards = Card.filter(hand, Type.TREASURE);
-
-      List<Action> prev = actions;
-      actions = DominionAction.treasurePhaseActions;
-      client.write("treasurePhase " + getCardColors(treasureCards));
-      synchronized (client) {
-         try {
-            client.wait();
-         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-         }
-      }
-      actions = prev;
+      
+      getResponse(treasurePhaseActions, "treasurePhase " + getCardColors(treasureCards));
    }
 
    @Override
@@ -113,7 +157,7 @@ public class RemoteDominionPlayer extends DominionPlayer implements
             availableCards.add(c);      
 
       List<Action> prev = actions;
-      actions = DominionAction.buyPhaseActions;
+      actions = buyPhaseActions;
 
       Collections.sort(availableCards, new Comparator<Card>() {
          @Override
@@ -124,17 +168,11 @@ public class RemoteDominionPlayer extends DominionPlayer implements
 
       while (buys > 0) {
          client.write("buyPhase " + getCardColors(availableCards));
-         try {
-            synchronized (client) {
-               client.wait();
-            }
-         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-         }
-         for (int i = 0; i < availableCards.size(); i++) {
+         
+         waitOnClient();
+         for (int i = 0; i < availableCards.size(); i++)
             if (availableCards.get(i).getCost() > coin)
                availableCards.remove(i--);
-         }
       }
 
       actions = prev;
@@ -159,10 +197,12 @@ public class RemoteDominionPlayer extends DominionPlayer implements
       StringBuilder sb = new StringBuilder();
       for (Card c : cards) {
          sb.append(' ');
-         sb.append(c.type.colorCode);
-         sb.append(c);
-         sb.append("\033[0m");
+         sb.append(c.getColorName());
       }
       return sb;
+   }
+   
+   public String toString() {
+      return client.getNick();
    }
 }
