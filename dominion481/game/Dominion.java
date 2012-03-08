@@ -71,6 +71,8 @@ public class Dominion extends Game {
 
       while (true) {
          for (DominionPlayer p : players) {
+            if (p.nick.equals("DEBUG"))
+               continue;
             currentTurn = p;
             currentPhase = Phase.ACTION;
             p.actionPhase();
@@ -83,6 +85,7 @@ public class Dominion extends Game {
 
             p.endTurn();
             if (isGameOver()) {
+               notifyAll("gameOver");
                return getWinners();
             }
          }
@@ -132,5 +135,9 @@ public class Dominion extends Game {
          if (p instanceof RemotePlayer)
             out.add((RemotePlayer) p);
       return out;
+   }
+   
+   public void reveal(DominionPlayer p, Card c) {
+      notifyAll("cardReveal "+p+" "+c);
    }
 }

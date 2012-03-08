@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class DominionClient {
+public class GameClient {
    private final static int DEFAULT_PORT = 1234;
 
    public static void main(String[] args) throws IOException {

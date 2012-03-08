@@ -88,6 +88,16 @@ public abstract class Action {
       public void handle(String[] args, ClientHandler client) {
          client.lobby.startGame();
       }
+   }, new Action("addAi", "ai", "add") {
+      @Override
+      public void handle(String[] args, ClientHandler client) {
+         if (args.length == 1) {
+            client.write("tooFewArguments");
+            return;
+         }
+         
+         
+      }
    });
 
    final static List<Action> defaultActions = Arrays.asList(new Action(
