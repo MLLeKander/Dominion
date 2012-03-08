@@ -21,7 +21,7 @@ public class DominionAction {
       }
    };
    
-   private static final Action chooseCardAction = new Action("choose", "select", "play", "trash") {
+   private static final Action chooseCardAction = new Action("choose", "select", "play", "trash", "gain") {
       public void handle(String[] args, ClientHandler client) {
          RemoteDominionPlayer p = (RemoteDominionPlayer)client.getPlayer();
          if (args.length == 1) {
@@ -29,11 +29,33 @@ public class DominionAction {
             return;
          }
          Card c = Card.getCard(args[1]);
-         if (c == null || !p.hand.contains(c)) {
+         if (c == null) {
             client.write("invalidArgument "+args[1]);
             return;
          }
          p.ret = c;
+         synchronized (client) { client.notify(); }
+      }
+   };
+   
+   private static final Action chooseCardsAction = new Action("choose", "select", "play", "trash") {
+      public void handle(String[] args, ClientHandler client) {
+         RemoteDominionPlayer p = (RemoteDominionPlayer)client.getPlayer();
+         List<Card> out = new ArrayList<Card>(args.length);
+         if (args.length == 1) {
+            client.write("tooFewArguments");
+            return;
+         }
+         for (int i = 1; i < args.length; i++) {
+            Card c = Card.getCard(args[i]);
+            if (c == null) {
+               client.write("invalidCard " + args[i]);
+            } else {
+               out.add(c);
+            }
+         }
+         p.ret = out;
+         synchronized (client) { client.notify(); }
       }
    };
 
@@ -118,9 +140,7 @@ public class DominionAction {
                }
             }
          }
-         synchronized (client) {
-            client.notify();
-         }
+         synchronized (client) { client.notify(); }
       }
    }, passAction);
    
@@ -141,4 +161,6 @@ public class DominionAction {
    static final List<Action> passableCardSelectionActions = Arrays.asList(chooseCardAction, passAction);
    
    static final List<Action> cardSelectionActions = Arrays.asList(chooseCardAction, emptyAction);
+   
+   static final List<Action> cardsSelectionActions = Arrays.asList(chooseCardsAction, emptyAction);
 }

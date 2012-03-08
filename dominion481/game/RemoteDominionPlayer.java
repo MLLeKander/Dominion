@@ -1,6 +1,16 @@
 package dominion481.game;
 
+import static dominion481.game.DominionAction.actionPhaseActions;
+import static dominion481.game.DominionAction.buyPhaseActions;
+import static dominion481.game.DominionAction.cardSelectionActions;
+import static dominion481.game.DominionAction.cardsSelectionActions;
+import static dominion481.game.DominionAction.defaultActions;
+import static dominion481.game.DominionAction.passableCardSelectionActions;
+import static dominion481.game.DominionAction.treasurePhaseActions;
+import static dominion481.game.DominionAction.yesNoActions;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -10,12 +20,10 @@ import dominion481.server.Action;
 import dominion481.server.ClientHandler;
 import dominion481.server.RemotePlayer;
 
-import static dominion481.game.DominionAction.*;
-
 public class RemoteDominionPlayer extends DominionPlayer implements
       RemotePlayer {
    private ClientHandler client;
-   private List<Action> actions = defaultActions;
+   private List<Action> acts = defaultActions;
    Object ret;
    
    private void waitOnClient() {
@@ -29,23 +37,23 @@ public class RemoteDominionPlayer extends DominionPlayer implements
    }
    
    private void getResponse(List<Action> actions, String prompt) {
-      List<Action> prev = this.actions;
-      this.actions = actions;
+      List<Action> prev = this.acts;
+      this.acts = actions;
       
       client.write(prompt);
       waitOnClient();
       
-      this.actions = prev;
+      this.acts = prev;
    }
    
    private void getResponse(List<Action> actions, String prompt, List<?> objs) {
-      List<Action> prev = this.actions;
-      this.actions = actions;
+      List<Action> prev = this.acts;
+      this.acts = actions;
       
       client.write(prompt, objs);
       waitOnClient();
       
-      this.actions = prev;
+      this.acts = prev;
    }
    
    private Object getRet() {
@@ -60,42 +68,56 @@ public class RemoteDominionPlayer extends DominionPlayer implements
 
    }
 
+   @SuppressWarnings("unchecked")
    @Override
    public List<Card> cellar() {
-      // TODO Auto-generated method stub
-      return null;
+      getResponse(cardsSelectionActions, "cellarDiscard", hand);
+      return (List<Card>)getRet();
    }
 
+   @SuppressWarnings("unchecked")
    @Override
    public List<Card> chapel() {
-      // TODO Auto-generated method stub
-      return null;
+      getResponse(cardsSelectionActions, "chapelDiscard", hand);
+      return (List<Card>)getRet();
    }
 
    @Override
    public boolean chancellor() {
-      // TODO Auto-generated method stub
-      return false;
+      getResponse(yesNoActions, "chancellorDeckDiscard?");
+      return (Boolean)getRet();
    }
 
    @Override
    public Card workshop() {
-      // TODO Auto-generated method stub
-      return null;
+      List<Card> toBuy = new ArrayList<Card>(parentGame.boardMap.keySet());
+
+      for (int i = 0; i < toBuy.size(); i++)
+         if (toBuy.get(i).getCost() > 4)
+            toBuy.remove(i--);
+
+      getResponse(passableCardSelectionActions, "workshopGain", toBuy);
+      return (Card)getRet();
    }
 
    @Override
    public Card feast() {
-      // TODO Auto-generated method stub
-      return null;
+      List<Card> toBuy = new ArrayList<Card>(parentGame.boardMap.keySet());
+
+      for (int i = 0; i < toBuy.size(); i++)
+         if (toBuy.get(i).getCost() > 5)
+            toBuy.remove(i--);
+
+      getResponse(passableCardSelectionActions, "feastGain", toBuy);
+      return (Card)getRet();
    }
 
    @Override
    public Card[] remodel() {
       Card[] out = new Card[2];
-      getResponse(cardSelectionActions, "discard", hand);
+      getResponse(cardSelectionActions, "remodelDiscard", hand);
       out[0] = (Card)getRet();
-      getResponse(cardSelectionActions, "gain", hand);
+      getResponse(cardSelectionActions, "remodelGain", hand);
       out[1] = (Card)getRet();
       return out;
    }
@@ -107,15 +129,13 @@ public class RemoteDominionPlayer extends DominionPlayer implements
       if (actionCards.size() == 0)
          return null;
 
-      getResponse(passableCardSelectionActions, "throneRoom", actionCards);
+      getResponse(passableCardSelectionActions, "throneRoomPlay", actionCards);
 
       return (Card)getRet();
    }
 
    @Override
    public boolean libraryDiscard(Card card) {
-      client.getGame().notifyAll("cardReveal "+client.getPlayer()+" "+card);
-
       getResponse(yesNoActions, "keep? "+card);
 
       return !(Boolean)getRet();
@@ -123,23 +143,32 @@ public class RemoteDominionPlayer extends DominionPlayer implements
 
    @Override
    public Card[] mine() {
-      // TODO Auto-generated method stub
-      return null;
+      Card[] out = new Card[2];
+
+      getResponse(cardSelectionActions, "mineDiscard", Card.filter(hand, Type.TREASURE));
+      out[0] = (Card) getRet();
+      getResponse(cardSelectionActions, "mineGain",
+            Card.filter(Arrays.asList(Card.values()), Type.TREASURE));
+      out[1] = (Card) getRet();
+      return out;
    }
 
    @Override
    public void actionPhase() {
-      client.write("hand" + getCardColors(hand));
-      List<Card> actionCards = Card.filter(hand, Type.ACTION);
-
-      if (actionCards.size() == 0)
-         return;
-
-      getResponse(actionPhaseActions, "actionPhase", actionCards);
-      
-      Card c = (Card)getRet();
-      if (c != null)
+      client.write("hand"+getCardColors(hand));
+      while (actions > 0) {
+         List<Card> actionCards = Card.filter(hand, Type.ACTION);
+   
+         if (actionCards.size() == 0)
+            return;
+   
+         getResponse(actionPhaseActions, "actionPhase "+actions, actionCards);
+         
+         Card c = (Card)getRet();
+         if (c == null)
+            return;
          playAction(c);
+      }
    }
 
    @Override
@@ -156,8 +185,8 @@ public class RemoteDominionPlayer extends DominionPlayer implements
          if (c.getCost() <= coin)
             availableCards.add(c);      
 
-      List<Action> prev = actions;
-      actions = buyPhaseActions;
+      List<Action> prev = acts;
+      acts = buyPhaseActions;
 
       Collections.sort(availableCards, new Comparator<Card>() {
          @Override
@@ -167,7 +196,7 @@ public class RemoteDominionPlayer extends DominionPlayer implements
       });
 
       while (buys > 0) {
-         client.write("buyPhase " + getCardColors(availableCards));
+         client.write("buyPhase "+coin+"C"+buys+"B "+getCardColors(availableCards));
          
          waitOnClient();
          for (int i = 0; i < availableCards.size(); i++)
@@ -175,7 +204,7 @@ public class RemoteDominionPlayer extends DominionPlayer implements
                availableCards.remove(i--);
       }
 
-      actions = prev;
+      acts = prev;
    }
 
    @Override
@@ -185,7 +214,7 @@ public class RemoteDominionPlayer extends DominionPlayer implements
 
    @Override
    public List<Action> getActions() {
-      return actions;
+      return acts;
    }
 
    public RemoteDominionPlayer(Dominion game, ClientHandler client) {

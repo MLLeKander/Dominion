@@ -121,7 +121,7 @@ public enum Card {
          
          Card gain = player.feast();
          if (gain != null) {
-            if (gain.cost <= 4) {
+            if (gain.cost <= 5) {
                player.gain(gain);
             }
             else {
@@ -282,7 +282,7 @@ public enum Card {
     */
    Mine(5) {
       public void play(DominionPlayer player, Dominion state) {
-         if (player.hand.size() == 0) {
+         if (Card.filter(player.hand, Type.TREASURE).size() == 0) {
             return;
          }
          

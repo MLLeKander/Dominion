@@ -136,4 +136,8 @@ public class Dominion extends Game {
             out.add((RemotePlayer) p);
       return out;
    }
+   
+   public void reveal(DominionPlayer p, Card c) {
+      notifyAll("cardReveal "+p+" "+c);
+   }
 }
