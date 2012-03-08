@@ -96,7 +96,7 @@ when
 	ta : TableCard(card.getActions() > 1)
 	tc : TableCard(card.getCards() > 1)
 then
-	insert (new PairRecommendation(ta.getCard(), tc.getCard(), 20, 0, 0));
+	insert (new PairRecommendation(ta.getCard(), tc.getCard(), 20, tc.getCard().getCards() * 3, 0));
 	insert (new PairRecommendation(tc.getCard(), ta.getCard(), 10, 0, 0));
 end
 
@@ -105,7 +105,7 @@ when
 	ta : TableCard(card.getActions() > 1)
 	tc : TableCard(card.getCoin() > 1)
 then
-	insert (new PairRecommendation(ta.getCard(), tc.getCard(), 20, 0, 0));
+	insert (new PairRecommendation(ta.getCard(), tc.getCard(), 20, tc.getCard().getCoin() * 5, 0));
 	insert (new PairRecommendation(tc.getCard(), ta.getCard(), 10, 0, 0));
 end
 
@@ -126,7 +126,7 @@ end
 
 rule "Devalue terminal actions when +Action not available"
 when
-	tc : TableCard(card.getActions() == 0);
+	tc : TableCard(card.getActions() == 0, card != KBCard.THRONE_ROOM, card.getType() == KBCardType.ACTION);
 	not(TableCard(card.getActions() > 1));
 then
 	tc.recommendation -= 20;
@@ -140,11 +140,26 @@ then
 	tc.recommendation += 40;
 end
 
-rule "Which is niiiice..."
+rule "Which is nice"
 when
 	tc : TableCard(card == KBCard.WITCH);
 then
 	tc.recommendation += 30;
+end
+
+rule "Bureaucrat is a good, early buy"
+when
+	tc : TableCard(card == KBCard.BUREAUCRAT);
+then
+	tc.recommendation += 50;
+end
+
+rule "Keep Bureaucrad an early buy"
+when
+	d : DeckCard();
+	tc : TableCard(card == KBCard.BUREAUCRAT);
+then
+	tc.recommendation -= 10;
 end
 
 
@@ -206,10 +221,19 @@ then
 	t.recommendation += 10;
 end
 
+rule "Keep buying copper if Gardens is owned"
+when
+	d : DeckCard();
+	t : TableCard(card == KBCard.COPPER)
+	exists (DeckCard(card == KBCard.GARDENS))
+then
+	t.recommendation = 10;
+end
+
 rule "Balance Treasures"
 when
 	d : DeckCard(card.getType() == KBCardType.TREASURE)
-	t : TableCard (card.getType() == KBCardType.TREASURE)
+	t : TableCard (card.getType() == KBCardType.TREASURE, card.getType() != KBCard.COPPER)
 then
 	t.recommendation -= 40;
 end
@@ -229,6 +253,14 @@ when
 then
 	t.recommendation += 20;
 end
+
+rule "Moat's not THAT good"
+when
+	d : DeckCard(card == KBCard.MOAT)
+	t : TableCard(card == KBCard.MOAT)
+then
+	t.recommendation /= 2;
+end 
 
 rule "Increase +Action on Action Purchase"
 when
