@@ -12,7 +12,7 @@ public enum Card {
 	 * + 1 Action
 	 * Discard any number of cards. +1 Card per card discarded.
 	 */
-   Cellar(2) {
+   CELLAR(2) {
       void play(DominionPlayer player, Dominion state) {
          List<Card> discards = player.cellar();
          for (Card discard : discards) {
@@ -28,7 +28,7 @@ public enum Card {
 	 * Chapel
 	 * Trash up to 4 cards from hand.
 	 */
-	Chapel(2) {
+	CHAPEL(2) {
 	   void play(DominionPlayer player, Dominion state) {
 	      List<Card> trashes = player.chapel();
 	      for (Card trash : trashes) {
@@ -43,7 +43,7 @@ public enum Card {
     * +2 Cards
     * Reacts to protect against attacks
     */
-   Moat(2) {
+   MOAT(2) {
       void play(DominionPlayer player, Dominion state) {
          player.draw();
          player.draw();
@@ -54,7 +54,7 @@ public enum Card {
     * +(2)
     * You may put your deck into your discard
     */
-   Chancellor(3) {
+   CHANCELLOR(3) {
       void play(DominionPlayer player, Dominion state) {
          player.coin += 2;
          
@@ -69,7 +69,7 @@ public enum Card {
     * +1 Card
     * +2 Actions
     */
-   Village(3) {
+   VILLAGE(3) {
       void play(DominionPlayer player, Dominion state) {
          player.actions += 2;
          player.draw();
@@ -80,7 +80,7 @@ public enum Card {
     * +(2)
     * +1 Buy
     */
-   Woodcutter(3) {
+   WOODCUTTER(3) {
       void play(DominionPlayer player, Dominion state) {
          player.coin += 2;
          player.buys += 1;
@@ -90,7 +90,7 @@ public enum Card {
     * Workshop
     * Gain any card costing up to 4
     */
-   Workshop(3) {
+   WORKSHOP(3) {
       void play(DominionPlayer player, Dominion state) {
          Card gain = player.workshop();
          if (gain != null) {
@@ -108,14 +108,14 @@ public enum Card {
     * Gain a silver and place it atop of your deck
     * All others must place a VP card from hand atop their deck (if possible)
     */
-   Bureaucrat(4, true) {
+   BUREAUCRAT(4, true) {
       //TODO
    },
    /*
     * Feast
     * Trash this. Gain a card costing up to 5
     */
-   Feast(4) {
+   FEAST(4) {
       public void play(DominionPlayer player, Dominion state) {
          player.inPlay.remove(this);
          
@@ -134,21 +134,21 @@ public enum Card {
     * Gardens
     * VP Value is deck size / 10, rounded down
     */
-   Gardens(Type.VICTORY, 4, 0, 0) {
+   GARDENS(Type.VICTORY, 4, 0, 0) {
       public int getVp(DominionPlayer player) {
          return (player.deck.size() + player.discard.size()) / 10;
       }
    },
-   Militia(4, true) {
+   MILITIA(4, true) {
       //TODO
    },
    /*
     * Moneylender
     * Trash a copper from your hand. If you do, +(3)
     */
-   Moneylender(4) {
+   MONEYLENDER(4) {
       public void play(DominionPlayer player, Dominion state) {
-         if (player.hand.remove(Card.Copper)) {
+         if (player.hand.remove(Card.COPPER)) {
             player.coin += 3;
          }
       }
@@ -157,7 +157,7 @@ public enum Card {
     * Remodel
     * Trash a card from your hand. Gain a card costing up to 2 more
     */
-   Remodel(4) {
+   REMODEL(4) {
       public void play(DominionPlayer player, Dominion state) {
          if (player.hand.size() == 0) {
             return;
@@ -185,20 +185,20 @@ public enum Card {
     * Smithy
     * +3 Cards
     */
-   Smithy(4) {
+   SMITHY(4) {
       public void play(DominionPlayer player, Dominion state) {
          player.draw();
          player.draw();
          player.draw();
       }
    },
-   Spy(4, true) {
+   SPY(4, true) {
       /* TODO */
    },
-   Theif(4, true) {
+   THEIF(4, true) {
       /* TODO */
    },
-   ThroneRoom(4) {
+   THRONE_ROOM(4) {
       public void play(DominionPlayer player, Dominion state) {
          Card card = player.throneRoom();
          
@@ -209,7 +209,7 @@ public enum Card {
          }
       }
    },
-   CouncilRoom(5) {
+   COUNCIL_ROOM(5) {
       /* TODO */
    },
    /*
@@ -218,7 +218,7 @@ public enum Card {
     * +1 Buy
     * +(2)
     */
-   Festival(5) {
+   FESTIVAL(5) {
       public void play(DominionPlayer player, Dominion state) {
          player.actions += 2;
          player.buys += 1;
@@ -231,7 +231,7 @@ public enum Card {
     * +1 Buy
     * +(2)
     */
-   Laboratory(5) {
+   LABORATORY(5) {
       public void play(DominionPlayer player, Dominion state) {
          player.actions += 1;
          player.draw();
@@ -243,7 +243,7 @@ public enum Card {
     * Draw until you have 7 cards
     * You may set aside and later discard any actions drawn in this manner
     */
-   Library(5) {
+   LIBRARY(5) {
       public void play(DominionPlayer player, Dominion state) {
          List<Card> setAside = new ArrayList<Card>();
          
@@ -268,7 +268,7 @@ public enum Card {
     * Market
     * +1 Card, +1 Action, +1 Buy, +(1)
     */
-   Market(5) {
+   MARKET(5) {
       public void play(DominionPlayer player, Dominion state) {
          player.coin += 1;
          player.actions += 1;
@@ -280,7 +280,7 @@ public enum Card {
     * Mine
     * Trash a treasure from hand. Gain a treasure costing up to 3 more... in hand
     */
-   Mine(5) {
+   MINE(5) {
       public void play(DominionPlayer player, Dominion state) {
          if (Card.filter(player.hand, Type.TREASURE).size() == 0) {
             return;
@@ -311,7 +311,7 @@ public enum Card {
          }
       } 
    },
-   Witch(5, true) {
+   WITCH(5, true) {
       /* TODO */
    },
    /*
@@ -319,7 +319,7 @@ public enum Card {
     * Reveal cards from your deck until you find two treasures.
     * Add the treasures to your hand. Discard the revealed cards.
     */
-   Adventurer(6) {
+   ADVENTURER(6) {
       public void play(DominionPlayer player, Dominion state) {
          int found = 0;
          List<Card> setAside = new ArrayList<Card>();
@@ -343,14 +343,14 @@ public enum Card {
    },
    
    //Base treasure cards
-   Gold(Type.TREASURE, 6, 0, 3),
-   Silver(Type.TREASURE, 3, 0, 2),
-   Copper(Type.TREASURE, 0, 0, 1),
+   GOLD(Type.TREASURE, 6, 0, 3),
+   SILVER(Type.TREASURE, 3, 0, 2),
+   COPPER(Type.TREASURE, 0, 0, 1),
    
   //Base victory cards
-   Province(Type.VICTORY, 8, 6, 0),
-   Duchy(Type.VICTORY, 5, 1, 0),
-   Estate(Type.VICTORY, 2, 3, 0)
+   PROVINCE(Type.VICTORY, 8, 6, 0),
+   DUCHY(Type.VICTORY, 5, 1, 0),
+   ESTATE(Type.VICTORY, 2, 3, 0)
 	;
 	public enum Type {
 		ACTION("\033[36m"), TREASURE("\033[33m"), VICTORY("\033[32m");
