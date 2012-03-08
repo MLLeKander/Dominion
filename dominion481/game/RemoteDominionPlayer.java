@@ -201,7 +201,7 @@ public class RemoteDominionPlayer extends DominionPlayer implements
    public void treasurePhase() {
       List<Card> treasureCards = Card.filter(hand, Type.TREASURE);
       
-      getResponse(treasurePhaseActions, "treasurePhase " + getCardColors(treasureCards));
+      getResponse(treasurePhaseActions, "treasurePhase" + getCardColors(treasureCards));
       
       List<Card> toRedeem = (List<Card>)getRet();
       for (Card c : toRedeem) {
@@ -256,7 +256,9 @@ public class RemoteDominionPlayer extends DominionPlayer implements
 
    @Override
    public List<Action> getActions() {
-      return acts;
+      List<Action> out = new ArrayList<Action>(acts);
+      out.add(DominionAction.statusAction);
+      return out;
    }
    
    @Override
@@ -269,7 +271,7 @@ public class RemoteDominionPlayer extends DominionPlayer implements
       this.client = client;
    }
 
-   private StringBuilder getCardColors(List<Card> cards) {
+   StringBuilder getCardColors(List<Card> cards) {
       StringBuilder sb = new StringBuilder();
       for (Card c : cards) {
          sb.append(' ');

@@ -120,7 +120,7 @@ public abstract class DominionPlayer {
       
       inPlay.add(card);
       coin += card.getTreasureValue();
-      parentGame.notifyAll("redeemedCard " + nick + card);
+      parentGame.notifyAll("redeem " + nick + " " + card);
    }
    
    public final void buy(Card card) {
@@ -138,7 +138,7 @@ public abstract class DominionPlayer {
       
       coin -= card.getCost();
       buys--;
-      parentGame.notifyAll("purchasedCard " + nick + " " + card);
+      parentGame.notifyAll("buy " + nick + " " + card);
    }
    
    final void endTurn() {

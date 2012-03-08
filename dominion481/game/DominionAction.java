@@ -22,6 +22,7 @@ public class DominionAction {
    };
    
    private static final Action chooseCardAction = new Action("[cardName]") {
+      @Override
       public void handle(String[] args, ClientHandler client) {
          RemoteDominionPlayer p = (RemoteDominionPlayer)client.getPlayer();
          
@@ -33,13 +34,15 @@ public class DominionAction {
          
          p.setRet(c);
       }
-      
+
+      @Override
       public boolean matches(String s) {
          return Card.getCard(s) != null;
       }
    };
    
    private static final Action chooseCardsAction = new Action("[cardName...]") {
+      @Override
       public void handle(String[] args, ClientHandler client) {
          RemoteDominionPlayer p = (RemoteDominionPlayer)client.getPlayer();
          List<Card> out = new ArrayList<Card>(args.length);
@@ -54,9 +57,21 @@ public class DominionAction {
          
          p.setRet(out);
       }
-      
+
+      @Override
       public boolean matches(String s) {
          return Card.getCard(s) != null;
+      }
+   };
+   
+   static final Action statusAction = new Action("status") {
+      public void handle(String[] args, ClientHandler client) {
+         //TODO
+         RemoteDominionPlayer p = (RemoteDominionPlayer) client.getPlayer();
+         client.write("hand"+p.getCardColors(p.hand));
+         client.write("discardSize "+p.discard.size());
+         client.write("deckSize "+p.deck.size());
+         client.write("board "+p.parentGame.boardMap.toString().replaceAll("[{,}]", ""));
       }
    };
 
@@ -114,7 +129,7 @@ public class DominionAction {
    
    static final List<Action> cardSelectionActions = Arrays.asList(chooseCardAction, emptyAction);
    
-   static final List<Action> passableCardsSelectionActions = Arrays.asList(chooseCardAction, passAction);
+   static final List<Action> passableCardsSelectionActions = Arrays.asList(chooseCardsAction, passAction);
    
    static final List<Action> cardsSelectionActions = Arrays.asList(chooseCardsAction, emptyAction);
 }
