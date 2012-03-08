@@ -303,7 +303,7 @@ public enum Card {
             }
       }
    },
-   /*ThroneRoom(4) {
+   ThroneRoom(4) {
       public void play(DominionPlayer player, Dominion game) {
          super.play(player, game);
          Card card = player.throneRoom();
@@ -314,7 +314,7 @@ public enum Card {
             card.play(player, game);
          }
       }
-   },*/
+   },
    /*
     * Council Room
     * +4 Cards
@@ -543,6 +543,14 @@ public enum Card {
       List<Card> out = new ArrayList<Card>();
       for (Card c : cards)
          if (c.type == target)
+            out.add(c);
+      return out;
+   }
+   
+   public static List<Card> filter(Iterable<Card> cards, int min, int max) {
+      List<Card> out = new ArrayList<Card>();
+      for (Card c : cards)
+         if ((min < 0 || min < c.getCost()) && (max < 0 || max > c.getCost()))
             out.add(c);
       return out;
    }

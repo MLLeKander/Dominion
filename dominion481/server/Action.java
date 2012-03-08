@@ -22,7 +22,7 @@ public abstract class Action {
    
    public boolean matches(String name) {
       for (String s : getNames())
-         if (s.equalsIgnoreCase(name))
+         if (s.toUpperCase().startsWith(name.toUpperCase()))
             return true;
       return false;
    }

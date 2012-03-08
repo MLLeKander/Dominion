@@ -32,8 +32,6 @@ public class DominionAction {
          }
          
          p.setRet(c);
-         /*p.ret = c;
-         synchronized (client) { client.notify(); }*/
       }
       
       public boolean matches(String s) {
@@ -55,8 +53,6 @@ public class DominionAction {
          }
          
          p.setRet(out);
-         /*p.ret = out;
-         synchronized (client) { client.notify(); }*/
       }
       
       public boolean matches(String s) {
@@ -89,67 +85,18 @@ public class DominionAction {
    }, emptyAction);
 
    static final List<Action> treasurePhaseActions = Arrays.asList(new Action(
-         "redeem", "r") {
+         "redeem") {
       @Override
       public void handle(String[] args, ClientHandler client) {
-         DominionPlayer player = (DominionPlayer) client.getPlayer();
-         List<Card> toRedeem = getRedemptionCards(args, player, client);
+         RemoteDominionPlayer p = (RemoteDominionPlayer) client.getPlayer();
+         List<Card> out = new ArrayList<Card>();
+         for (Card c : p.hand)
+            if (c.type == Card.Type.TREASURE)
+               out.add(c);
          
-         for (Card c : toRedeem) {
-            try {
-               player.playTreasure(c);
-            } catch (IllegalStateException e) {
-               client.write("invalidCard " + c);
-            }
-         }
-         synchronized (client) { client.notify(); }
+         p.setRet(out);
       }
-
-      private List<Card> getRedemptionCards(String[] args,
-            DominionPlayer player, ClientHandler client) {
-         List<Card> out = new ArrayList<Card>(args.length);
-         if (args.length == 1) {
-            for (Card c : player.hand)
-               if (c.type == Card.Type.TREASURE)
-                  out.add(c);
-         } else {
-            for (int i = 1; i < args.length; i++) {
-               Card c = Card.getCard(args[i]);
-               if (c == null) {
-                  client.write("invalidCard " + args[i]);
-               } else {
-                  out.add(c);
-               }
-            }
-         }
-         return out;
-      }
-   }, passAction);
-   
-   static final List<Action> buyPhaseActions = Arrays.asList(new Action(
-         "buyCard", "buy", "b") {
-      @Override
-      public void handle(String[] args, ClientHandler client) {
-         DominionPlayer p = (DominionPlayer) client.getPlayer();
-         if (args.length < 2) {
-            p.buys = 0;
-         } else {
-            Card c = Card.getCard(args[1]);
-            if (c == null) {
-               client.write("invalidCard " + args[1]);
-            } else {
-               try {
-                  p.buy(c);
-               } catch (IllegalArgumentException e) {
-                  client.write(e.getMessage());
-               }
-            }
-         }
-         synchronized (client) { client.notify(); }
-      }
-   }, passAction);
-   
-   static final List<Action> actionPhaseActions = Arrays.asList(chooseCardAction, passAction);
+   }, chooseCardsAction, passAction);
    
    static final List<Action> yesNoActions = Arrays.asList(new Action("yes") {
       public void handle(String[] args, ClientHandler client) {
@@ -166,6 +113,8 @@ public class DominionAction {
    static final List<Action> passableCardSelectionActions = Arrays.asList(chooseCardAction, passAction);
    
    static final List<Action> cardSelectionActions = Arrays.asList(chooseCardAction, emptyAction);
+   
+   static final List<Action> passableCardsSelectionActions = Arrays.asList(chooseCardAction, passAction);
    
    static final List<Action> cardsSelectionActions = Arrays.asList(chooseCardsAction, emptyAction);
 }

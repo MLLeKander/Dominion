@@ -1,11 +1,10 @@
 package dominion481.game;
 
-import static dominion481.game.DominionAction.actionPhaseActions;
-import static dominion481.game.DominionAction.buyPhaseActions;
 import static dominion481.game.DominionAction.cardSelectionActions;
 import static dominion481.game.DominionAction.cardsSelectionActions;
 import static dominion481.game.DominionAction.defaultActions;
 import static dominion481.game.DominionAction.passableCardSelectionActions;
+import static dominion481.game.DominionAction.passableCardsSelectionActions;
 import static dominion481.game.DominionAction.treasurePhaseActions;
 import static dominion481.game.DominionAction.yesNoActions;
 
@@ -58,7 +57,7 @@ public class RemoteDominionPlayer extends DominionPlayer implements
    
    public void setRet(Object o) {
       ret = o;
-      notify();
+      synchronized (client) { client.notify(); }
    }
    
    private Object getRet() {
@@ -115,9 +114,10 @@ public class RemoteDominionPlayer extends DominionPlayer implements
    public Card[] remodel() {
       Card[] out = new Card[2];
       getResponse(cardSelectionActions, "remodelDiscard", hand);
-      out[0] = (Card)getRet();
-      getResponse(cardSelectionActions, "remodelGain", hand);
-      out[1] = (Card)getRet();
+      out[0] = (Card) getRet();
+      getResponse(cardSelectionActions, "remodelGain", Card.filter(
+            parentGame.getPurchaseableCards(), -1, out[0].getCost() + 2));
+      out[1] = (Card) getRet();
       return out;
    }
 
@@ -162,7 +162,7 @@ public class RemoteDominionPlayer extends DominionPlayer implements
    @SuppressWarnings("unchecked")
    @Override
    public List<Card> militia() {
-      getResponse(cardSelectionActions, "militiaDiscard", hand);
+      getResponse(cardsSelectionActions, "militiaDiscard", hand);
       return (List<Card>) getRet();
    }
 
@@ -187,7 +187,7 @@ public class RemoteDominionPlayer extends DominionPlayer implements
          if (actionCards.size() == 0)
             return;
    
-         getResponse(actionPhaseActions, "actionPhase "+actions, actionCards);
+         getResponse(passableCardSelectionActions, "actionPhase "+actions, actionCards);
          
          Card c = (Card)getRet();
          if (c == null)
@@ -196,22 +196,30 @@ public class RemoteDominionPlayer extends DominionPlayer implements
       }
    }
 
+   @SuppressWarnings("unchecked")
    @Override
    public void treasurePhase() {
       List<Card> treasureCards = Card.filter(hand, Type.TREASURE);
       
       getResponse(treasurePhaseActions, "treasurePhase " + getCardColors(treasureCards));
+      
+      List<Card> toRedeem = (List<Card>)getRet();
+      for (Card c : toRedeem) {
+         try {
+            playTreasure(c);
+         } catch (IllegalStateException e) {
+            client.write("invalidCard " + c);
+         }
+      }
    }
 
+   @SuppressWarnings("unchecked")
    @Override
    public void buyPhase() {
       List<Card> availableCards = new ArrayList<Card>();
       for (Card c : parentGame.boardMap.keySet())
          if (c.getCost() <= coin)
             availableCards.add(c);      
-
-      List<Action> prev = acts;
-      acts = buyPhaseActions;
 
       Collections.sort(availableCards, new Comparator<Card>() {
          @Override
@@ -221,15 +229,24 @@ public class RemoteDominionPlayer extends DominionPlayer implements
       });
 
       while (buys > 0) {
-         notify("buyPhase "+coin+"C"+buys+"B "+getCardColors(availableCards));
+         getResponse(passableCardsSelectionActions, "buyPhase "+coin+"C"+buys+"B"+getCardColors(availableCards));
+
+         List<Card> toBuy = (List<Card>)getRet();
+         if (toBuy == null)
+            break;
+
+         for (Card c : toBuy) {
+            try {
+               buy(c);
+            } catch (IllegalArgumentException e) {
+               client.write(e.getMessage());
+            }
+         }
          
-         waitOnClient();
          for (int i = 0; i < availableCards.size(); i++)
             if (availableCards.get(i).getCost() > coin)
                availableCards.remove(i--);
       }
-
-      acts = prev;
    }
 
    @Override

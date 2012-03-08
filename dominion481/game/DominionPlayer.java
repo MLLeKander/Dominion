@@ -29,6 +29,7 @@ public abstract class DominionPlayer {
     */
    final Card draw() {
       if (deck.isEmpty()) {
+         parentGame.notifyAll("reshuffle "+nick);
          while (discard.size() > 0) {
             int ndx = (int)Math.floor(Math.random() * discard.size());
             deck.add(discard.remove(ndx));
@@ -42,6 +43,7 @@ public abstract class DominionPlayer {
       
       Card toDraw = deck.poll();
       hand.add(toDraw);
+      notify("draw "+toDraw);
       Collections.sort(hand);
       return toDraw;
    }
@@ -52,6 +54,7 @@ public abstract class DominionPlayer {
       }
       
       discard.add(card);
+      notify("discard "+card);
    }
    
    final boolean gain(Card card) {
@@ -67,6 +70,7 @@ public abstract class DominionPlayer {
       
       board.put(card, board.get(card) - 1);
       discard.add(card);
+      parentGame.notifyAll("gain "+nick+" "+card);
       return true;
    }
    
@@ -116,7 +120,7 @@ public abstract class DominionPlayer {
       
       inPlay.add(card);
       coin += card.getTreasureValue();
-      parentGame.notifyAll(nick + " redeemed " + card);
+      parentGame.notifyAll("redeemedCard " + nick + card);
    }
    
    public final void buy(Card card) {
@@ -142,6 +146,7 @@ public abstract class DominionPlayer {
       discard.addAll(inPlay);
       hand.clear();
       inPlay.clear();
+      parentGame.notifyAll("endTurn " + nick);
       prepareTurn();
    }
 
@@ -201,6 +206,11 @@ public abstract class DominionPlayer {
    public DominionPlayer(Dominion state, String nick) {
       this.parentGame = state;
       this.nick = nick;
+   }
+
+   public void startTurn() {
+      // TODO Auto-generated method stub
+      parentGame.notifyAll("startTurn "+nick);
    }
 
 

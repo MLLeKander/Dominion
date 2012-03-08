@@ -49,7 +49,6 @@ public class Dominion extends Game {
          int pivot = (int) floor(random() * (cards.size() - 1 - i))+i;
          Card tmp = cards.set(pivot, cards.get(i));
          cards.set(i, tmp);
-         System.out.println(tmp);
          boardMap.put(tmp, 10);
       }
 
@@ -78,6 +77,7 @@ public class Dominion extends Game {
          for (DominionPlayer p : players) {
             if (p.nick.equals("DEBUG"))
                continue;
+            p.startTurn();
             currentTurn = p;
             currentPhase = Phase.ACTION;
             p.actionPhase();
@@ -139,6 +139,14 @@ public class Dominion extends Game {
       for (DominionPlayer p : players)
          if (p instanceof RemotePlayer)
             out.add((RemotePlayer) p);
+      return out;
+   }
+   
+   public List<Card> getPurchaseableCards() {
+      List<Card> out = new ArrayList<Card>(boardMap.keySet());
+      for (int i = 0; i < out.size(); i++)
+         if (boardMap.get(out) <= 0)
+            out.remove(i--);
       return out;
    }
    
